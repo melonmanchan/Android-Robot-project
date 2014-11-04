@@ -9,19 +9,20 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
+
+// Must extend application class to handle passing complex stream objects between activities. Serializabe/Parcelable not an option.
 public class ApplicationState extends Application {
-	private ApplicationStateManager stateManager = new ApplicationStateManager(this);
+	private BluetoothStreamManager stateManager = new BluetoothStreamManager();
 	
 	
-	public ApplicationStateManager getStateManager() {
+	public BluetoothStreamManager getStateManager() {
 		return stateManager;
 	}
 	
     @Override
     public void onCreate() {
         super.onCreate();
-
-        stateManager = new ApplicationStateManager(this.getApplicationContext());
+        stateManager = new BluetoothStreamManager();
 
     }
 

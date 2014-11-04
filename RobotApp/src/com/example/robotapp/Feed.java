@@ -1,7 +1,6 @@
 package com.example.robotapp;
 
-import java.util.ArrayList;
-import java.util.Set;
+
 
 import android.support.v7.app.ActionBarActivity;
 import android.bluetooth.*;
@@ -18,16 +17,14 @@ import android.widget.Toast;
 
 public class Feed extends ActionBarActivity {
 
-	ApplicationStateManager appState;
 	
 	
-	private static final int REQUEST_ENABLE_BT = 1;
 	
 	private JoystickView leftJoystick;
-	//private JoystickView rightJoystick;
 	private JoystickView rightJoystick;
 	
-	
+	private ApplicationState appState;
+	private BluetoothStreamManager btStream;
 	/*private BluetoothManager bluetoothManager;
 	private BluetoothAdapter bluetoothAdapter;
 	private Set<BluetoothDevice> pairedDevices;
@@ -38,8 +35,12 @@ public class Feed extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_feed);
+		Intent intent = getIntent();
 		
-		appState = ((ApplicationState)getApplicationContext()).getStateManager();
+		appState = (ApplicationState)this.getApplication();
+		btStream = appState.getStateManager();
+		
+		//appState = ((ApplicationState)getApplicationContext()).getStateManager();
 		
 		
 		//foundDevices = new ArrayList<BluetoothDevice>();
@@ -136,14 +137,5 @@ public class Feed extends ActionBarActivity {
 	    return super.onKeyDown(keycode, e);
 	}
 	
-	
-
-	protected void onDestroy() {
-		super.onDestroy();
-		//if (mReceiver != null)
-		//{
-			//unregisterReceiver(mReceiver);
-		//}
-	}
 	
 }
