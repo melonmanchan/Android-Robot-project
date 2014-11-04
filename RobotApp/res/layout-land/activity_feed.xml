@@ -15,30 +15,17 @@
         android:text="@string/hello_world" />
 
     <com.example.robotapp.JoystickView
-        android:id="@+id/leftJoystick"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_alignLeft="@+id/textView1"
+        android:id="@+id/rightJoystick"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginLeft="40dp" />
+        android:layout_alignParentRight="true" />
 
-    <com.example.robotapp.OtherJoystick
-        android:id="@+id/otherJoystick1"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_alignBottom="@+id/leftJoystick"
-        android:layout_alignParentRight="true"
-        android:layout_marginBottom="15dp"
-        android:layout_marginRight="31dp" />
-
-    <Button
-        android:id="@+id/button1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/leftJoystick"
-        android:layout_marginLeft="24dp"
-        android:layout_toRightOf="@+id/leftJoystick"
-        android:text="Button"
-        android:onClick="discoverBluetoothDevices" />
+    <com.example.robotapp.JoystickView
+        android:id="@+id/leftJoystick"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true" />
 
 </RelativeLayout>

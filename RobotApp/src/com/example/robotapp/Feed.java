@@ -18,37 +18,51 @@ import android.widget.Toast;
 
 public class Feed extends ActionBarActivity {
 
+	ApplicationStateManager appState;
+	
 	
 	private static final int REQUEST_ENABLE_BT = 1;
 	
 	private JoystickView leftJoystick;
 	//private JoystickView rightJoystick;
-	private OtherJoystick rightJoystick;
+	private JoystickView rightJoystick;
 	
 	
-	private BluetoothManager bluetoothManager;
+	/*private BluetoothManager bluetoothManager;
 	private BluetoothAdapter bluetoothAdapter;
 	private Set<BluetoothDevice> pairedDevices;
 	
 	private ArrayList<BluetoothDevice> foundDevices;
-	
+	*/
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_feed);
 		
-		foundDevices = new ArrayList<BluetoothDevice>();
+		appState = ((ApplicationState)getApplicationContext()).getStateManager();
+		
+		
+		//foundDevices = new ArrayList<BluetoothDevice>();
 		
 		leftJoystick = (JoystickView) findViewById(R.id.leftJoystick);
 		//rightJoystick = (JoystickView) findViewById(R.id.RightJoystick);
-		rightJoystick = (OtherJoystick) findViewById(R.id.otherJoystick1);
+		rightJoystick = (JoystickView) findViewById(R.id.rightJoystick);
 	
 		initiateJoystickListeners();
 		
-		initiateBluetooth();
+		initiateReferencesFromAppState();
 		
 	}
 
+	private void initiateReferencesFromAppState() {
+		System.out.println("initiateReferencesFromAppState");
+		/*
+		this.bluetoothAdapter = appState.getBluetoothAdapter();
+		this.bluetoothManager = appState.getBluetoothManager();
+		this.pairedDevices = appState.getPairedDevices();
+		this.foundDevices = appState.getFoundDevices();*/
+	}
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -110,7 +124,6 @@ public class Feed extends ActionBarActivity {
 		
 	}
 	
-	
 	@Override
 	public boolean onKeyDown(int keycode, KeyEvent e) {
 	    switch(keycode) {
@@ -123,73 +136,14 @@ public class Feed extends ActionBarActivity {
 	    return super.onKeyDown(keycode, e);
 	}
 	
-	public void initiateBluetooth() {
-		
-		System.out.println("Initiating bluetooth...");
-		
-		bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-		
-		if (bluetoothAdapter == null)
-		{
-			Toast.makeText(getApplicationContext(), "Device does not support bluetooth :(", Toast.LENGTH_LONG).show();
-			System.exit(0);
-		}
-		
-		if (!bluetoothAdapter.isEnabled()) {
-		    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-		    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-		}
-		// Find already bound device
-		pairedDevices = bluetoothAdapter.getBondedDevices();
-		
-		Toast.makeText(this, "Found bluetooth devices: " + pairedDevices.size(), Toast.LENGTH_LONG).show();
-
-		for (BluetoothDevice bt : pairedDevices)
-		{
-			System.out.println("Old device name: " + bt.getName() + " , and address: " + bt.getAddress());
-			foundDevices.add(bt);
-		}
-		
-	}
 	
-	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
-	    public void onReceive(Context context, Intent intent) {
-	        String action = intent.getAction();
-	        // When discovery finds a device
-	        if (BluetoothDevice.ACTION_FOUND.equals(action)) {
-	            // Get the BluetoothDevice object from the Intent
-	            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-	            // Add the name and address to an array adapter to show in a ListView
-	            System.out.println("Found new device: " + device.getName() + " | " + device.getAddress());
-	        }
-	    }
-	};
-
-	public void discoverBluetoothDevices(View view)
-	{
-		try {
-		   System.out.println("Discovering new bluetooth devices");
-			   if (bluetoothAdapter.isDiscovering()) {
-				   // the button is pressed when it discovers, so cancel the discovery
-				   bluetoothAdapter.cancelDiscovery();
-			   }
-			   else {
-				   
-				   bluetoothAdapter.startDiscovery();
-					
-					registerReceiver(mReceiver, new IntentFilter(BluetoothDevice.ACTION_FOUND));	
-				}    
-			   
-		}
-		catch (Exception ex) {
-			Toast.makeText(getApplicationContext(), ex.getMessage(), Toast.LENGTH_LONG);
-		}
-		   
-	}
 
 	protected void onDestroy() {
 		super.onDestroy();
-		unregisterReceiver(mReceiver);
+		//if (mReceiver != null)
+		//{
+			//unregisterReceiver(mReceiver);
+		//}
 	}
 	
 }
