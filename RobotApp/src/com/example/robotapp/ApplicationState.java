@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 // Must extend application class to handle passing complex stream objects between activities. Serializabe/Parcelable not an option.
 public class ApplicationState extends Application {
-	private BluetoothStreamManager stateManager = new BluetoothStreamManager();
+	private BluetoothStreamManager stateManager;
 	
 	
 	public BluetoothStreamManager getStateManager() {
@@ -23,7 +23,12 @@ public class ApplicationState extends Application {
     public void onCreate() {
         super.onCreate();
         stateManager = new BluetoothStreamManager();
-
+        stateManager.push("asdasd");
+        stateManager.push("asdasd");
+        stateManager.push("asdasd");
+        stateManager.push("asdasd");
+        stateManager.push("asdasd");
+        stateManager.workThread.start();
     }
 
 	

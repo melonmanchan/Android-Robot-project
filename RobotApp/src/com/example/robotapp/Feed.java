@@ -25,44 +25,23 @@ public class Feed extends ActionBarActivity {
 	
 	private ApplicationState appState;
 	private BluetoothStreamManager btStream;
-	/*private BluetoothManager bluetoothManager;
-	private BluetoothAdapter bluetoothAdapter;
-	private Set<BluetoothDevice> pairedDevices;
-	
-	private ArrayList<BluetoothDevice> foundDevices;
-	*/
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_feed);
-		Intent intent = getIntent();
 		
 		appState = (ApplicationState)this.getApplication();
 		btStream = appState.getStateManager();
-		
-		//appState = ((ApplicationState)getApplicationContext()).getStateManager();
-		
-		
-		//foundDevices = new ArrayList<BluetoothDevice>();
-		
+		System.out.println("Feed switch");
 		leftJoystick = (JoystickView) findViewById(R.id.leftJoystick);
-		//rightJoystick = (JoystickView) findViewById(R.id.RightJoystick);
 		rightJoystick = (JoystickView) findViewById(R.id.rightJoystick);
 	
 		initiateJoystickListeners();
-		
-		initiateReferencesFromAppState();
-		
+
+				
 	}
 
-	private void initiateReferencesFromAppState() {
-		System.out.println("initiateReferencesFromAppState");
-		/*
-		this.bluetoothAdapter = appState.getBluetoothAdapter();
-		this.bluetoothManager = appState.getBluetoothManager();
-		this.pairedDevices = appState.getPairedDevices();
-		this.foundDevices = appState.getFoundDevices();*/
-	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {

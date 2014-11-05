@@ -55,8 +55,6 @@ public class Settings extends ActionBarActivity {
 		appState = (ApplicationState)this.getApplication();
 		btStream = appState.getStateManager();
 		
-		//findViewById(R.id.mainLayout).requestFocus();
-		
 		deviceList = (ListView) findViewById(R.id.deviceList);		
 		BTArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 		bluetoothDevices = new ArrayList<BluetoothDevice>();
@@ -230,7 +228,12 @@ public class Settings extends ActionBarActivity {
 			Toast.makeText(getApplicationContext(), "You must have a valid bluetooth device to continue!", Toast.LENGTH_LONG).show();
 			return;
 		}
-		
+		btStream.push("[ASDFAC]");
+		btStream.push("[FASFFF]");
+		btStream.push("[41FASF]");
+		btStream.push("[GSD52]");
+		btStream.push("{ASDFAC}");
+
 		Intent intent = new Intent(getApplicationContext(), Feed.class);
 		startActivity(intent);
 	}
