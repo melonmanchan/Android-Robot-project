@@ -228,12 +228,7 @@ public class Settings extends ActionBarActivity {
 			Toast.makeText(getApplicationContext(), "You must have a valid bluetooth device to continue!", Toast.LENGTH_LONG).show();
 			return;
 		}
-		btStream.push("[ASDFAC]");
-		btStream.push("[FASFFF]");
-		btStream.push("[41FASF]");
-		btStream.push("[GSD52]");
-		btStream.push("{ASDFAC}");
-
+		btStream.workThread.start();
 		Intent intent = new Intent(getApplicationContext(), Feed.class);
 		startActivity(intent);
 	}

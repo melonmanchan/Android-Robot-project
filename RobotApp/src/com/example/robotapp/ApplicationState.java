@@ -23,12 +23,6 @@ public class ApplicationState extends Application {
     public void onCreate() {
         super.onCreate();
         stateManager = new BluetoothStreamManager();
-        stateManager.push("asdasd");
-        stateManager.push("asdasd");
-        stateManager.push("asdasd");
-        stateManager.push("asdasd");
-        stateManager.push("asdasd");
-        stateManager.workThread.start();
     }
 
 	

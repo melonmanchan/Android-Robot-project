@@ -7,7 +7,7 @@ public class BluetoothStreamManager {
     // Stream for writing bytes to bluetooth
 	private OutputStream outputStream;
 	// Stack data structure to hold robot commands in string form
-	private Stack<String> commandStack;
+	private Stack<byte[]> commandStack;
 	// Seperate thread to keep running in background during the whole she-bang, running new commands if necessary. Thread is best implementation of
 	// threading in Android for this use-case imo. AsyncTask too bulky, only for "short" asynchronous tasks. Don't see a need to update UI thread from here.
 	// Thread seems to be the fastest implementation
@@ -16,7 +16,7 @@ public class BluetoothStreamManager {
 	public BluetoothStreamManager()
 	{
 		outputStream = null;
-		commandStack = new Stack<String>();
+		commandStack = new Stack<byte[]>();
 		workThread = new Thread()
 		{
 			@Override
@@ -28,16 +28,19 @@ public class BluetoothStreamManager {
 				        		{
 									if (!commandStack.isEmpty() && outputStream != null)
 									{
-											byte[] msgBuffer = commandStack.pop().getBytes("US-ASCII");
+										//System.out.println("===============================");
+											byte[] msgBuffer = commandStack.pop();
 											//outputStream.write(msgBuffer);
-											System.out.println("new buffer incoming!");
+											//System.out.println("new buffer incoming!");
 											for (int i = 0; i < msgBuffer.length; i++)
 											{
-												System.out.println("byte: " + msgBuffer[i]);
+											//	System.out.println("byte" + i + " : " + msgBuffer[i]);
 											}
 											
-											Thread.sleep(300);
-						        	}
+											//System.out.println("===============================");
+
+											
+									}
 									
 				        		}
 							
@@ -60,19 +63,19 @@ public class BluetoothStreamManager {
 		this.outputStream = outputStream;
 	}
 
-	public Stack<String> getCommandStack() {
+	public Stack<byte[]> getCommandStack() {
 		return commandStack;
 	}
 
-	public void setCommandStack(Stack<String> commandStack) {
+	public void setCommandStack(Stack<byte[]> commandStack) {
 		this.commandStack = commandStack;
 	}
 
-	public void push(String command) {
+	public void push(byte[] command) {
 		commandStack.push(command);
 	}
 	
-	public String peek() {
+	public byte[] peek() {
 		return commandStack.peek();
 	}
 
