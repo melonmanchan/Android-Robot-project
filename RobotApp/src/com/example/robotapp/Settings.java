@@ -76,7 +76,13 @@ public class Settings extends ActionBarActivity {
 		
 	}
 
-
+	@Override
+	protected void onResume(){
+		super.onResume();
+		System.out.println("changed activity");
+		btStream.setCurrentActivity(this);
+	}
+	
 	private void refreshDeviceList()
 	{
 		BTArrayAdapter.clear();
@@ -228,8 +234,18 @@ public class Settings extends ActionBarActivity {
 			Toast.makeText(getApplicationContext(), "You must have a valid bluetooth device to continue!", Toast.LENGTH_LONG).show();
 			return;
 		}
-		btStream.workThread.start();
 		Intent intent = new Intent(getApplicationContext(), Feed.class);
+		startActivity(intent);
+	}
+	
+	public void switchToPin(View view)
+	{
+		if (btStream.getInputStream() == null)
+		{
+			Toast.makeText(getApplicationContext(), "You must have a valid bluetooth device paired to continue!", Toast.LENGTH_LONG).show();
+			return;
+		}
+		Intent intent = new Intent(getApplicationContext(), PinControl.class );
 		startActivity(intent);
 	}
 	

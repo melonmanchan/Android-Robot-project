@@ -1,9 +1,22 @@
 package com.example.robotapp;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Stack;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.bluetooth.BluetoothDevice;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.widget.Toast;
+
 public class BluetoothStreamManager {
+	
+	// reference to current Activity
+	private Activity currentActivity;
+	
+	private BluetoothDevice bluetoothDevice;
     // Stream for writing bytes to bluetooth
 	private OutputStream outputStream;
 	// Stack data structure to hold robot commands in string form
@@ -30,7 +43,7 @@ public class BluetoothStreamManager {
 									{
 										//System.out.println("===============================");
 											byte[] msgBuffer = commandStack.pop();
-											//outputStream.write(msgBuffer);
+											outputStream.write(msgBuffer);
 											//System.out.println("new buffer incoming!");
 											for (int i = 0; i < msgBuffer.length; i++)
 											{
@@ -45,11 +58,33 @@ public class BluetoothStreamManager {
 				        		}
 							
 					}
-			        
-			    	catch (Exception ex) 
-			    	{
-			    		System.out.println("BluetoothStreammanager exception:" + ex.getMessage());
-			    	}
+			        catch (IOException ex) {
+			        	System.out.println("IOError!");
+			        	
+			        	currentActivity.runOnUiThread(new Runnable() {
+			        	    public void run() {
+			        	    	
+			        	       new AlertDialog.Builder(currentActivity).setTitle("Bluetooth failed!")
+			        	       .setMessage("Fuck! The bluetooth connection has failed. Go back to settings and initiate a new connection?").setPositiveButton("Settings", new DialogInterface.OnClickListener() {
+			        	           public void onClick(DialogInterface dialog, int which) { 
+			        	               // Go back to settings
+			        	        	   Intent intent = new Intent(currentActivity, Settings.class);
+			        	       		   currentActivity.startActivity(intent);
+			        	        	   
+			        	           }
+			        	        })
+			        	       .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+			        	           public void onClick(DialogInterface dialog, int which) { 
+			        	               // do nothing
+			        	        	   return ;
+			        	           }
+			        	        })
+			        	       .setIcon(android.R.drawable.ic_dialog_alert)
+			        	        .show();
+			        	       
+			        	    }
+			        	});
+			        }
 			}
 			
 		};
@@ -79,6 +114,9 @@ public class BluetoothStreamManager {
 		return commandStack.peek();
 	}
 
+	public void setCurrentActivity(Activity activity) {
+		this.currentActivity = activity;
+	}
 
 }
 /*

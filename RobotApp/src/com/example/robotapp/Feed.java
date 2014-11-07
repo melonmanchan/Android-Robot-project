@@ -64,6 +64,7 @@ public class Feed extends ActionBarActivity {
 		
 		appState = (ApplicationState)this.getApplication();
 		btStream = appState.getStateManager();
+		btStream.setCurrentActivity(this);
 		leftJoystick = (JoystickView) findViewById(R.id.leftJoystick);
 		rightJoystick = (JoystickView) findViewById(R.id.rightJoystick);
 		
@@ -83,6 +84,13 @@ public class Feed extends ActionBarActivity {
 		
 	}
 
+	@Override
+	protected void onResume(){
+		super.onResume();
+		System.out.println("changed activity");
+		btStream.setCurrentActivity(this);
+	}
+	
 	
 	private void initiateMovementHandlers() {
 		

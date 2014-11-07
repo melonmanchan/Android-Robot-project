@@ -45,27 +45,6 @@
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true" >
     </ListView>
-
-    <Button
-        android:id="@+id/findNewDevices"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/deviceList"
-        android:layout_below="@+id/deviceList"
-        android:layout_marginTop="14dp"
-        android:onClick="discoverBluetoothDevices"
-        android:text="Find new devices" />
-
-    <Button
-        android:id="@+id/feedButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/findNewDevices"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="21dp"
-        android:text="Go to feed"
-        android:onClick="switchToFeed" />
-
     <TextView
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
@@ -76,13 +55,38 @@
         android:text="Camera feed IP Address"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:layout_above="@+id/deviceList"
+        android:layout_alignParentLeft="true"
+        android:background="@android:color/darker_gray" />
+
+    <Button
+        android:id="@+id/feedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/pinButton"
+        android:layout_alignLeft="@+id/findNewDevices"
+        android:onClick="switchToFeed"
+        android:text="Go to feed" />
+
     <Button
         android:id="@+id/pinButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/feedButton"
-        android:layout_alignBottom="@+id/feedButton"
+        android:layout_alignParentBottom="true"
         android:layout_alignRight="@+id/deviceList"
+        android:onClick="switchToPin"
         android:text="Go to pin control" />
+
+    <Button
+        android:id="@+id/findNewDevices"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/feedButton"
+        android:layout_alignLeft="@+id/deviceList"
+        android:onClick="discoverBluetoothDevices"
+        android:text="Find new devices" />
 
 </RelativeLayout>
