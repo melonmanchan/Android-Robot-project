@@ -45,11 +45,7 @@ public class BluetoothStreamManager {
 											byte[] msgBuffer = commandStack.pop();
 											outputStream.write(msgBuffer);
 											//System.out.println("new buffer incoming!");
-											for (int i = 0; i < msgBuffer.length; i++)
-											{
-											//	System.out.println("byte" + i + " : " + msgBuffer[i]);
-											}
-											
+											outputStream.flush();
 											//System.out.println("===============================");
 
 											

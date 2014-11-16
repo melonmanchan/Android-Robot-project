@@ -1,11 +1,7 @@
 package com.example.robotapp;
 
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import android.support.v7.app.ActionBarActivity;
@@ -86,7 +82,6 @@ public class Settings extends ActionBarActivity {
 	private void refreshDeviceList()
 	{
 		BTArrayAdapter.clear();
-		List<String> s = new ArrayList<String>();
 		for(BluetoothDevice bt : bluetoothDevices) {  
 		
     	BTArrayAdapter.add(bt.getName() + "\n" + bt.getAddress());

@@ -19,6 +19,9 @@ import android.widget.Toast;
 public class Feed extends ActionBarActivity {
 
 	
+	private boolean motorStateChanged = false;
+	private boolean servoStateChanged = false; 
+	
 	// Movement commands are sent to arduino as a byte array. first byte of array is delimiter, 2nd is left motor direction, 3rd is left motor speed
 	// 4th is right motor direction, 5th is right motor speed, 6th is servo movement.
 	private static byte MOTOR_COMMAND_DELIMITER = 123;
@@ -44,7 +47,7 @@ public class Feed extends ActionBarActivity {
 	private Handler movementHandler;
 	private Runnable movementRunnable;
 	
-	private int movementUpdateSpeed = 1000;
+	private int movementUpdateSpeed = 10;
 	
 	private JoystickView leftJoystick;
 	private JoystickView rightJoystick;
@@ -72,10 +75,10 @@ public class Feed extends ActionBarActivity {
 		
 		motorCommand = new byte[6];
 		motorCommand[0] = MOTOR_COMMAND_DELIMITER; // ASCII character { which is the starting delimiter to tell the Robot that there's a motor movement command incoming!
-		motorCommand[1] = -128; // second byte indicates the speed of the left motor. -128 is 0 speed.
-		motorCommand[2] = MOTOR_RELEASE; // no motor movement
-		motorCommand[3] = -128;
-		motorCommand[4] = MOTOR_RELEASE;// no motor movement
+		motorCommand[1] = MOTOR_RELEASE; // second byte indicates the speed of the left motor.
+		motorCommand[2] = 0; // no motor movement
+		motorCommand[3] = MOTOR_RELEASE; // 3rd byte indicates speed of right motor
+		motorCommand[4] = 0;// no motor movement
 	    motorCommand[5] = SERVO_NOTHING; // no servo movement
 		System.out.println("Done initianting motorcommand!");
 	    
@@ -97,7 +100,27 @@ public class Feed extends ActionBarActivity {
 		movementHandler = new Handler();
 		movementRunnable = new Runnable() {
 			public void run() {
-				btStream.push(motorCommand);
+					byte[] temp = motorCommand;
+					
+					
+					if (servoStateChanged == false)
+					{
+						temp[5] = SERVO_NOTHING;
+					}
+					
+					if (motorStateChanged == false)
+					{
+						temp[1] = MOTOR_RELEASE; // second byte indicates the speed of the left motor.
+						temp[2] = 0; // no motor movement
+						temp[3] = MOTOR_RELEASE;
+						temp[4] = 0;// no motor movement
+					}
+					
+					btStream.push(temp);
+					
+					servoStateChanged = false;
+					motorStateChanged = false;
+				
 				movementHandler.postDelayed(movementRunnable, movementUpdateSpeed);
 			}
 		};
@@ -131,6 +154,8 @@ public class Feed extends ActionBarActivity {
                 //angleTextView.setText(" " + String.valueOf(angle) + "°");
                 //powerTextView.setText(" " + String.valueOf(power) + "%");
             	//System.out.println("angle: " + angle + " power: " + power);
+            	motorStateChanged = true;
+
             	if (power > 100) {
             		power = 100;
             	}
@@ -138,10 +163,11 @@ public class Feed extends ActionBarActivity {
             	if (direction == JoystickView.FRONT || direction == JoystickView.BOTTOM || direction == JoystickView.LEFT || direction == JoystickView.BOTTOM)
             	{
             		// axisforce is calculated as a sliding value of -127 to 128.
-            		axisForce = (byte) ((byte) -128 + (byte)(255 * power/100));
+            		axisForce = (byte) (byte)(127 * power/100);
             	}
             	
                 switch (direction) {
+                
                 case JoystickView.FRONT:
                 	                	                	
                 	motorCommand[1] = MOTOR_FORWARD;
@@ -154,7 +180,9 @@ public class Feed extends ActionBarActivity {
                 	//System.out.println("M: up-right");
 
                 	motorCommand[1] = MOTOR_FORWARD;
+                	motorCommand[2] = axisForce;
                 	motorCommand[3] = MOTOR_FORWARD;
+                	motorCommand[4] = (byte) (axisForce / 2);
                 	
                     break;
                 case JoystickView.RIGHT:
@@ -171,7 +199,9 @@ public class Feed extends ActionBarActivity {
                 	//System.out.println("M: right-bottom");
 
                 	motorCommand[1] = MOTOR_BACKWARD;
+                	motorCommand[2] = (byte) (axisForce / 2);
                 	motorCommand[3] = MOTOR_BACKWARD;
+                	motorCommand[4] = axisForce;
                 	
                     break;
                 case JoystickView.BOTTOM:
@@ -184,8 +214,9 @@ public class Feed extends ActionBarActivity {
                 case JoystickView.BOTTOM_LEFT:
                 	//
                 	motorCommand[1] = MOTOR_BACKWARD;
+                	motorCommand[2] = axisForce;
                 	motorCommand[3] = MOTOR_BACKWARD;
-                	
+                	motorCommand[4] = (byte) (axisForce / 2);;
                     break;
                 case JoystickView.LEFT:
                 	//System.out.println("M: left");
@@ -200,15 +231,17 @@ public class Feed extends ActionBarActivity {
                 	//System.out.println("M: left-front");
 
                 	motorCommand[1] = MOTOR_FORWARD;
+                	motorCommand[2] = (byte) (axisForce / 2);
                 	motorCommand[3] = MOTOR_FORWARD;
+                	motorCommand[4] = axisForce;
                 	
                     break;
                 default:
-                	//
+                	
                 	motorCommand[1] = MOTOR_RELEASE;
-                	motorCommand[2] = -127;
+                	motorCommand[2] = 0;
                 	motorCommand[3] = MOTOR_RELEASE;
-                	motorCommand[4] = -127;
+                	motorCommand[4] = 0;
                 	
                 }
             }
@@ -217,10 +250,12 @@ public class Feed extends ActionBarActivity {
 		
 		rightJoystick.setOnJoystickMoveListener(new JoystickView.OnJoystickMoveListener() {
             public void onValueChanged(int angle, int power, int direction) {
+            	servoStateChanged = true;
                 // TODO Auto-generated method stub
                 //angleTextView.setText(" " + String.valueOf(angle) + "°");
                 //powerTextView.setText(" " + String.valueOf(power) + "%");
             	//System.out.println("angle: " + angle + " power: " + power);
+            	
                 switch (direction) {
                 case JoystickView.FRONT:
                 	//System.out.println("S: front");
@@ -268,7 +303,15 @@ public class Feed extends ActionBarActivity {
             }
         }, JoystickView.DEFAULT_LOOP_INTERVAL); 
 		
-		
+	}
+
+	public void resetMotorCommandState()
+	{
+		motorCommand[1] = 0; // second byte indicates the speed of the left motor. -128 is 0 speed.
+		motorCommand[2] = MOTOR_RELEASE; // no motor movement
+		motorCommand[3] = 0;
+		motorCommand[4] = MOTOR_RELEASE;// no motor movement
+	    motorCommand[5] = SERVO_NOTHING; // no servo movement
 	}
 	
 	@Override

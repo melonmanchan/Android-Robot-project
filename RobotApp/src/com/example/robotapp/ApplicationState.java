@@ -24,6 +24,12 @@ public class ApplicationState extends Application {
         super.onCreate();
         stateManager = new BluetoothStreamManager();
         stateManager.workThread.start();
+        byte[] data;
+        data = new byte[3];
+        data[0] = 127;
+        data[1] = -128;
+        data[2] = 0;
+		stateManager.push(data);
     }
 
 	

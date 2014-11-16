@@ -23,7 +23,7 @@ public class JoystickView extends View implements Runnable {
 	public final static int LEFT_FRONT = 2;*/
 	
 	
-	public final static long DEFAULT_LOOP_INTERVAL = 100; // 100 ms
+	public final static long DEFAULT_LOOP_INTERVAL = 15; // 100 ms
 	public final static int FRONT = 3;
 	public final static int FRONT_RIGHT = 2;
 	public final static int RIGHT = 1;
