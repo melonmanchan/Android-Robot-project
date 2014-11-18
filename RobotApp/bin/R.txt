@@ -261,6 +261,7 @@ int id ArduinoPin5 0x7f060052
 int id ArduinoPin6 0x7f060053
 int id ArduinoPin7 0x7f060054
 int id ArduinoPin8 0x7f060055
+int id BTupdateSpeedText 0x7f060069
 int id action_bar 0x7f06002d
 int id action_bar_activity_content 0x7f060026
 int id action_bar_container 0x7f06002c
@@ -272,7 +273,7 @@ int id action_context_bar 0x7f06002e
 int id action_menu_divider 0x7f060027
 int id action_menu_presenter 0x7f060028
 int id action_mode_close_button 0x7f060035
-int id action_settings 0x7f060068
+int id action_settings 0x7f06006a
 int id activity_chooser_view_content 0x7f060036
 int id alignBounds 0x7f060002
 int id alignMargins 0x7f060003
@@ -298,11 +299,11 @@ int id edit_query 0x7f060041
 int id end 0x7f060011
 int id expand_activities_button 0x7f060037
 int id expanded_menu 0x7f06003d
-int id feedButton 0x7f060065
+int id feedButton 0x7f060066
 int id fill 0x7f06000d
 int id fill_horizontal 0x7f06000b
 int id fill_vertical 0x7f060009
-int id findNewDevices 0x7f060067
+int id findNewDevices 0x7f060068
 int id gridLayout1 0x7f06004f
 int id home 0x7f060025
 int id homeAsUp 0x7f060017
@@ -323,7 +324,7 @@ int id normal 0x7f060012
 int id pin11SeekBar 0x7f06005b
 int id pin5SeekBar 0x7f06005d
 int id pin6SeekBar 0x7f06005c
-int id pinButton 0x7f060066
+int id pinButton 0x7f060067
 int id progress_circular 0x7f060029
 int id progress_horizontal 0x7f06002a
 int id radio 0x7f060040
@@ -357,6 +358,7 @@ int id top_action_bar 0x7f060031
 int id up 0x7f060032
 int id useLogo 0x7f060015
 int id vertical 0x7f060001
+int id view1 0x7f060065
 int id withText 0x7f06001e
 int integer abc_max_action_buttons 0x7f0a0000
 int layout abc_action_bar_decor 0x7f030000

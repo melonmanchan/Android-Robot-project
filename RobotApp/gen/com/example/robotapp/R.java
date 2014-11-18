@@ -1298,6 +1298,7 @@ containing a value of this type.
         public static final int ArduinoPin6=0x7f060053;
         public static final int ArduinoPin7=0x7f060054;
         public static final int ArduinoPin8=0x7f060055;
+        public static final int BTupdateSpeedText=0x7f060069;
         public static final int action_bar=0x7f06002d;
         public static final int action_bar_activity_content=0x7f060026;
         public static final int action_bar_container=0x7f06002c;
@@ -1309,7 +1310,7 @@ containing a value of this type.
         public static final int action_menu_divider=0x7f060027;
         public static final int action_menu_presenter=0x7f060028;
         public static final int action_mode_close_button=0x7f060035;
-        public static final int action_settings=0x7f060068;
+        public static final int action_settings=0x7f06006a;
         public static final int activity_chooser_view_content=0x7f060036;
         public static final int alignBounds=0x7f060002;
         public static final int alignMargins=0x7f060003;
@@ -1335,11 +1336,11 @@ containing a value of this type.
         public static final int end=0x7f060011;
         public static final int expand_activities_button=0x7f060037;
         public static final int expanded_menu=0x7f06003d;
-        public static final int feedButton=0x7f060065;
+        public static final int feedButton=0x7f060066;
         public static final int fill=0x7f06000d;
         public static final int fill_horizontal=0x7f06000b;
         public static final int fill_vertical=0x7f060009;
-        public static final int findNewDevices=0x7f060067;
+        public static final int findNewDevices=0x7f060068;
         public static final int gridLayout1=0x7f06004f;
         public static final int home=0x7f060025;
         public static final int homeAsUp=0x7f060017;
@@ -1360,7 +1361,7 @@ containing a value of this type.
         public static final int pin11SeekBar=0x7f06005b;
         public static final int pin5SeekBar=0x7f06005d;
         public static final int pin6SeekBar=0x7f06005c;
-        public static final int pinButton=0x7f060066;
+        public static final int pinButton=0x7f060067;
         public static final int progress_circular=0x7f060029;
         public static final int progress_horizontal=0x7f06002a;
         public static final int radio=0x7f060040;
@@ -1394,6 +1395,7 @@ containing a value of this type.
         public static final int up=0x7f060032;
         public static final int useLogo=0x7f060015;
         public static final int vertical=0x7f060001;
+        public static final int view1=0x7f060065;
         public static final int withText=0x7f06001e;
     }
     public static final class integer {

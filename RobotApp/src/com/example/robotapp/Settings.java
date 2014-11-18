@@ -12,6 +12,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +21,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 public class Settings extends ActionBarActivity {
@@ -29,9 +31,16 @@ public class Settings extends ActionBarActivity {
 
 	private String cameraIPAddress;
 	private int cameraPort;
- 
+	private int movementUpdateSpeed;
+
 	private ApplicationState appState;
 	private BluetoothStreamManager btStream;
+	private SharedPreferences sharedPref;
+	
+	TextView updateSpeedTextView;
+	TextView cameraIPAddressTextView;
+	TextView cameraPortTextView;
+	
 	ListView deviceList;
 	
 	private BluetoothAdapter bluetoothAdapter;
@@ -51,7 +60,24 @@ public class Settings extends ActionBarActivity {
 		appState = (ApplicationState)this.getApplication();
 		btStream = appState.getStateManager();
 		
-		deviceList = (ListView) findViewById(R.id.deviceList);		
+		sharedPref = getApplicationContext().getSharedPreferences("RobotPreferences", 0);
+			
+		cameraIPAddress = sharedPref.getString("CAMERA_IP_ADDRESS", "127.0.0.1");
+		cameraPort = sharedPref.getInt("CAMERA_PORT", 8080);
+		movementUpdateSpeed = sharedPref.getInt("BT_UPDATE_SPEED", 115);
+		
+		
+		deviceList = (ListView) findViewById(R.id.deviceList);
+		cameraIPAddressTextView = (TextView) findViewById(R.id.cameraIPText);
+		cameraPortTextView = (TextView) findViewById(R.id.cameraPortText);
+		updateSpeedTextView = (TextView) findViewById(R.id.BTupdateSpeedText);
+		
+		
+		cameraIPAddressTextView.setText(cameraIPAddress);
+		cameraPortTextView.setText(String.valueOf(cameraPort));
+		updateSpeedTextView.setText(String.valueOf(movementUpdateSpeed));
+		
+		
 		BTArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1);
 		bluetoothDevices = new ArrayList<BluetoothDevice>();
 		initiateBluetooth();
@@ -77,6 +103,18 @@ public class Settings extends ActionBarActivity {
 		super.onResume();
 		System.out.println("changed activity");
 		btStream.setCurrentActivity(this);
+	}
+	
+	protected void onStop() {
+		super.onStop();
+		
+		SharedPreferences.Editor editor = sharedPref.edit();
+		
+		editor.putString("CAMERA_IP_ADDRESS", cameraIPAddressTextView.getText().toString());
+		editor.putInt("CAMERA_PORT", Integer.parseInt(cameraPortTextView.getText().toString()));
+		editor.putInt("BT_UPDATE_SPEED", Integer.parseInt(updateSpeedTextView.getText().toString()));
+
+		editor.commit();
 	}
 	
 	private void refreshDeviceList()
@@ -230,6 +268,8 @@ public class Settings extends ActionBarActivity {
 			return;
 		}
 		Intent intent = new Intent(getApplicationContext(), Feed.class);
+		int updateSpeed = Integer.parseInt(updateSpeedTextView.getText().toString());
+		intent.putExtra("BT_UPDATE_SPEED", updateSpeed);
 		startActivity(intent);
 	}
 	

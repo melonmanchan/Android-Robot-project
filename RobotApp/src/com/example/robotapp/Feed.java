@@ -47,7 +47,7 @@ public class Feed extends ActionBarActivity {
 	private Handler movementHandler;
 	private Runnable movementRunnable;
 	
-	private int movementUpdateSpeed = 10;
+	private int movementUpdateSpeed;
 	
 	private JoystickView leftJoystick;
 	private JoystickView rightJoystick;
@@ -64,6 +64,16 @@ public class Feed extends ActionBarActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_feed);
+		
+		if (savedInstanceState == null) {
+			Bundle extras = getIntent().getExtras();
+			if (extras == null) {
+				movementUpdateSpeed = 120;
+			}
+			else {
+				movementUpdateSpeed = extras.getInt("BT_UPDATE_SPEED");
+			}
+		}
 		
 		appState = (ApplicationState)this.getApplication();
 		btStream = appState.getStateManager();
@@ -92,8 +102,13 @@ public class Feed extends ActionBarActivity {
 		super.onResume();
 		System.out.println("changed activity");
 		btStream.setCurrentActivity(this);
+		movementHandler.postDelayed(movementRunnable, movementUpdateSpeed);
 	}
 	
+	protected void onStop() {
+		super.onStop();
+		movementHandler.removeCallbacks(movementRunnable);
+	}
 	
 	private void initiateMovementHandlers() {
 		
@@ -101,7 +116,6 @@ public class Feed extends ActionBarActivity {
 		movementRunnable = new Runnable() {
 			public void run() {
 					byte[] temp = motorCommand;
-					
 					
 					if (servoStateChanged == false)
 					{
