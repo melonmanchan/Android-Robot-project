@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.robotapp"
+    android:versionCode="1"
+    android:versionName="1.0" >
+
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="21" />
+
+    <application
+        android:name=".ApplicationState"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="Cool robot!"
+        android:theme="@style/AppTheme" >
+        <activity
+            android:name=".Feed"
+            android:label="@string/title_robot_feed"
+            android:screenOrientation="landscape" >
+        </activity>
+        <activity
+            android:name=".Settings"
+            android:configChanges="keyboardHidden|orientation"
+            android:label="Cool robot"
+            android:windowSoftInputMode="adjustPan" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
+        <activity
+            android:name=".Settingstest"
+            android:label="@string/title_activity_settingstest" >
+        </activity>
+        <activity
+            android:name=".PinControl"
+            android:label="@string/title_activity_pin_control" >
+        </activity>
+    </application>
+
+</manifest>
