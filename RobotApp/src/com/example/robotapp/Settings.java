@@ -1,6 +1,7 @@
 package com.example.robotapp;
 
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -34,7 +35,7 @@ public class Settings extends ActionBarActivity {
 	private int movementUpdateSpeed;
 
 	private ApplicationState appState;
-	private BluetoothStreamManager btStream;
+	private BluetoothStreamManager btStreamManager;
 	private SharedPreferences sharedPref;
 	
 	TextView updateSpeedTextView;
@@ -58,7 +59,7 @@ public class Settings extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_settings);
 		appState = (ApplicationState)this.getApplication();
-		btStream = appState.getStateManager();
+		btStreamManager = appState.getStateManager();
 		
 		sharedPref = getApplicationContext().getSharedPreferences("RobotPreferences", 0);
 			
@@ -102,7 +103,7 @@ public class Settings extends ActionBarActivity {
 	protected void onResume(){
 		super.onResume();
 		System.out.println("changed activity");
-		btStream.setCurrentActivity(this);
+		btStreamManager.setCurrentActivity(this);
 	}
 	
 	protected void onStop() {
@@ -207,7 +208,7 @@ public class Settings extends ActionBarActivity {
 			System.out.println("Opened socket for device " + deviceInUse.getName());
 			bluetoothOutput = bluetoothSocket.getOutputStream();
 			
-			btStream.setOutputStream(bluetoothOutput);
+			btStreamManager.setOutputStream(bluetoothOutput);
 			
 		}
 		catch(Exception ex)
@@ -262,25 +263,38 @@ public class Settings extends ActionBarActivity {
 	
 	public void switchToFeed(View view)
 	{
-		if (btStream.getInputStream() == null)
+		if (btStreamManager.getInputStream() == null)
 		{
 			Toast.makeText(getApplicationContext(), "You must have a valid bluetooth device to continue!", Toast.LENGTH_LONG).show();
 			return;
 		}
 		Intent intent = new Intent(getApplicationContext(), Feed.class);
+		/*
+		String testmessage = "z" + "asdasdasd" + "\n";
+		try {
+			btStreamManager.push(testmessage.getBytes("US-ASCII"));
+			System.out.println("ASCII:" + testmessage.getBytes("US-ASCII"));
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
 		int updateSpeed = Integer.parseInt(updateSpeedTextView.getText().toString());
 		intent.putExtra("BT_UPDATE_SPEED", updateSpeed);
+		
+		
 		startActivity(intent);
 	}
 	
 	public void switchToPin(View view)
 	{
-		if (btStream.getInputStream() == null)
+		if (btStreamManager.getInputStream() == null)
 		{
 			Toast.makeText(getApplicationContext(), "You must have a valid bluetooth device paired to continue!", Toast.LENGTH_LONG).show();
 			return;
 		}
 		Intent intent = new Intent(getApplicationContext(), PinControl.class );
+		
 		startActivity(intent);
 	}
 	

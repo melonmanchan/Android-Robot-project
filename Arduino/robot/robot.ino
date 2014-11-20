@@ -1,5 +1,6 @@
 
 #include <Arduino.h>
+#include <Servo.h> 
 #include <Wire.h>
 #include "Adafruit_LEDBackpack.h"
 #include "Adafruit_GFX.h"
@@ -15,6 +16,13 @@ Adafruit_8x8matrix eyematrix = Adafruit_8x8matrix();
 SoftwareSerial mouthSerial(2, 3); // RX, TX
 
 
+Servo bottomServo;  // create servo object to control a servo 
+Servo topServo; // a maximum of eight servo objects can be created 
+ 
+int bottomPos = 90;    // variable to store the servo position 
+int topPos = 140;
+
+
 static const uint8_t matrixAddr = 0x71;
 
 unsigned long eyeTimer;
@@ -24,6 +32,15 @@ unsigned long eyeAcc;
 unsigned long mouthTimer;
 unsigned long mouthLastTimer;
 unsigned long mouthAcc;
+
+unsigned long servoMovementTimer;
+unsigned long servoMovementLastTimer;
+unsigned long servoMovementTimerAcc;
+
+
+unsigned long messageStartTime;
+unsigned long messageCurrentTime;
+unsigned long messageEstimatedTime = 400;
 
 uint8_t mouthIndex = 0;
 char* mouthAnimations[5] = {"$$$F000010000111111111111111111000010000111111111111111111000010000000010000111111111111111111000010000111111111111111111000010000",
@@ -111,6 +128,8 @@ static const byte SERVO_LEFT = 7;
 static byte SERVO_UP_LEFT = 8;
 static const byte SERVO_NOTHING = 9;
 
+boolean isTransmittingMessage = false;
+
 byte motorCommand[5];
 int motorCmdIndex = 0;
 long previousMillis = 0; 
@@ -123,6 +142,7 @@ void setup() {
   eyematrix.begin(matrixAddr);
   currentState = "nothing";
   mouthSerial.begin(9600);
+  mouthSerial.println("$$$SPEED100");
   Serial.begin(115200);
   // Seed random number generator from an unused analog input:
   randomSeed(analogRead(A0));
@@ -130,21 +150,26 @@ void setup() {
   eyematrix.setRotation(3);
   mouthSerial.println(mouthAnimations[1]);
   
-  
+  bottomServo.attach(10);
+  topServo.attach(9);  // attaches the servo on pin 9 to the servo object 
+  bottomServo.write(bottomPos);
+  topServo.write(topPos);
   
 }
 
 void loop() {
-  moveRobot();
+  handleSerialInput();
 
-  mouthTimer = eyeTimer = millis();
+  servoMovementTimer = mouthTimer = eyeTimer = messageCurrentTime = millis();
   
   eyeAcc += eyeTimer - eyeLastTimer;
   mouthAcc += mouthTimer - mouthLastTimer;
+  servoMovementTimerAcc += servoMovementTimer - servoMovementLastTimer;
+  
   
   mouthLastTimer = mouthTimer;
   eyeLastTimer = eyeTimer;
-  
+  servoMovementLastTimer = servoMovementTimer;
   
 /*  while (mouthAcc >= 800)
   {
@@ -158,6 +183,15 @@ void loop() {
     eyeAcc = 0;
   } 
   
+  if (isTransmittingMessage)
+  {
+    if (messageCurrentTime - messageStartTime >= messageEstimatedTime)
+    {
+         mouthSerial.println(mouthAnimations[1]);
+         //mouthSerial.println("done");
+        isTransmittingMessage = false;
+    }
+  }
 }
 
 void animateEyes() {
@@ -221,7 +255,7 @@ void flushSerial()
         Serial.read(); 
   }
   
-void moveRobot()
+void handleSerialInput()
 {
     if (Serial.available() > 0)
   {
@@ -243,7 +277,21 @@ void moveRobot()
     }
     
     
-    if (motorCmdIndex <= 4 && currentState == "motor")
+    if (currentState == "motor")
+      {
+        handleRobotMovement(incomingByte);
+      }
+      
+      else if (currentState == "message")
+      {
+        handleRobotIncomingMessage();
+      }
+    }
+}
+
+void handleRobotMovement(byte incomingByte)
+  {
+      if (motorCmdIndex <= 4)
       {
         motorCommand[motorCmdIndex] = incomingByte;
         motorCmdIndex++;
@@ -251,55 +299,40 @@ void moveRobot()
       
      else if (motorCmdIndex >= 5 && currentState == "motor")
      {
-       // run motor stuff
-       /*
-       mouthSerial.println("mtrCmd");
-       delay(2000);
-       
-       mouthSerial.println(motorCommand[0]);
-       delay(2000);
-       
-       mouthSerial.println(motorCommand[1]);
-       delay(2000);
-       
-       mouthSerial.println(motorCommand[2]);
-       delay(2000);
-       
-       mouthSerial.println(motorCommand[3]);
-       delay(2000);
-       
-       mouthSerial.println(motorCommand[4]);
-       delay(2000);             
-       */
        byte leftDirection = motorCommand[0];
        byte leftSpeed= motorCommand[1];
        
        byte rightDirection = motorCommand[2];
        byte rightSpeed = motorCommand[3];
-       /*
-       mouthSerial.println("ls: ");
-       mouthSerial.println(leftSpeed);
-       delay(3000);
-       mouthSerial.println("ld: ");
-       mouthSerial.println(leftDirection);
-              delay(3000);
-       mouthSerial.println("rs: ");
-
-       mouthSerial.println(rightSpeed);
-              delay(3000);
-       mouthSerial.println("rd: ");
-
-       mouthSerial.println(rightDirection);
-              delay(3000);
-
- */    runMotor(rightSpeed, rightDirection, rightMotor);
        runMotor(leftSpeed, leftDirection, leftMotor);
-      // delay(10);
+
+       runMotor(rightSpeed, rightDirection, rightMotor);
+       
+       while(servoMovementTimerAcc >= 10)
+       {
+         byte servoMovement = motorCommand[4];
+         
+         if (servoMovement != SERVO_NOTHING)
+         {
+           moveServo(servoMovement);
+         }
+         servoMovementTimerAcc = 0;
+       }
        motorCmdIndex = 0;
        currentState = "nothing";
      }
-    }
-}
+  }
+
+void handleRobotIncomingMessage()
+  {
+    String incomingMessage = Serial.readStringUntil('\n');
+    mouthSerial.println("$$$ALL,OFF");
+    mouthSerial.println(incomingMessage);    
+    messageStartTime = millis();
+    messageEstimatedTime = incomingMessage.length() * 700;
+    isTransmittingMessage = true;
+    currentState = "nothing";
+  }
 
 void runMotor(byte motorSpeed, byte motorDirection, Adafruit_DCMotor *motor)
   {
@@ -316,4 +349,58 @@ void runMotor(byte motorSpeed, byte motorDirection, Adafruit_DCMotor *motor)
        motor->run(RELEASE);   
        break;
    }
+  }
+  
+  
+void moveServo(byte servoDirection)
+  {
+    
+  if (servoDirection == SERVO_DOWN && topPos < 150)
+  {
+   topPos = topPos + 5; 
+  }
+  
+  else if (servoDirection == SERVO_UP && topPos >= 110)
+  {
+    topPos = topPos - 5; 
+  }
+
+  else if (servoDirection == SERVO_LEFT && bottomPos < 160)
+  {
+   bottomPos = bottomPos + 5; 
+  }
+  
+  else if (servoDirection == SERVO_RIGHT && bottomPos  >= 20)
+  {
+    bottomPos = bottomPos - 5; 
+  }  
+  
+  
+    else if (servoDirection == SERVO_DOWN_RIGHT && bottomPos  >= 20 && topPos < 150)
+  {
+    topPos = topPos + 5; 
+    bottomPos = bottomPos - 5; 
+  }  
+  
+    else if (servoDirection == SERVO_DOWN_LEFT && bottomPos < 160 && topPos < 150)
+  {
+       topPos = topPos + 5; 
+       bottomPos = bottomPos + 5; 
+  }  
+  
+    else if (servoDirection == SERVO_UP_RIGHT && topPos >= 110 && bottomPos  >= 20)
+  {
+    bottomPos = bottomPos - 5;
+    topPos = topPos - 5; 
+  }  
+  
+    else if (servoDirection == SERVO_UP_LEFT && topPos >= 110 && bottomPos < 160)
+  {
+    bottomPos = bottomPos + 5; 
+    topPos = topPos - 5; 
+  }  
+  
+  bottomServo.write(bottomPos);
+  topServo.write(topPos);  // 
+  
   }

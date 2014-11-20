@@ -3,6 +3,7 @@ package com.example.robotapp;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Stack;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -19,9 +20,9 @@ public class BluetoothStreamManager {
 	private BluetoothDevice bluetoothDevice;
     // Stream for writing bytes to bluetooth
 	private OutputStream outputStream;
-	// Stack data structure to hold robot commands in string form
-	private Stack<byte[]> commandStack;
-	// Seperate thread to keep running in background during the whole she-bang, running new commands if necessary. Thread is best implementation of
+	// Queue data structure to hold robot commands in byte array form
+	private ConcurrentLinkedQueue<byte[]> commandQueue;
+		// Seperate thread to keep running in background during the whole she-bang, running new commands if necessary. Thread is best implementation of
 	// threading in Android for this use-case imo. AsyncTask too bulky, only for "short" asynchronous tasks. Don't see a need to update UI thread from here.
 	// Thread seems to be the fastest implementation
 	public Thread workThread;
@@ -29,7 +30,7 @@ public class BluetoothStreamManager {
 	public BluetoothStreamManager()
 	{
 		outputStream = null;
-		commandStack = new Stack<byte[]>();
+		commandQueue = new ConcurrentLinkedQueue<byte[]>();
 		workThread = new Thread()
 		{
 			@Override
@@ -39,16 +40,15 @@ public class BluetoothStreamManager {
 			    	{
 				        		while(!Thread.interrupted())
 				        		{
-									if (!commandStack.isEmpty() && outputStream != null)
+									if (!commandQueue.isEmpty() && outputStream != null)
 									{
 										//System.out.println("===============================");
-											byte[] msgBuffer = commandStack.pop();
+											byte[] msgBuffer = commandQueue.poll();
 											outputStream.write(msgBuffer);
 											//System.out.println("new buffer incoming!");
 											outputStream.flush();
 											//System.out.println("===============================");
 
-											
 									}
 									
 				        		}
@@ -94,20 +94,20 @@ public class BluetoothStreamManager {
 		this.outputStream = outputStream;
 	}
 
-	public Stack<byte[]> getCommandStack() {
-		return commandStack;
+	public ConcurrentLinkedQueue<byte[]> getCommandStack() {
+		return commandQueue;
 	}
 
-	public void setCommandStack(Stack<byte[]> commandStack) {
-		this.commandStack = commandStack;
+	public void setCommandStack(ConcurrentLinkedQueue<byte[]> commandQueue) {
+		this.commandQueue = commandQueue;
 	}
 
 	public void push(byte[] command) {
-		commandStack.push(command);
+		commandQueue.add(command);
 	}
 	
 	public byte[] peek() {
-		return commandStack.peek();
+		return commandQueue.peek();
 	}
 
 	public void setCurrentActivity(Activity activity) {

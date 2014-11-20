@@ -213,9 +213,9 @@ public class Feed extends ActionBarActivity {
                 	//System.out.println("M: right-bottom");
 
                 	motorCommand[1] = MOTOR_BACKWARD;
-                	motorCommand[2] = (byte) (axisForce / 2);
+                	motorCommand[2] = axisForce;
                 	motorCommand[3] = MOTOR_BACKWARD;
-                	motorCommand[4] = axisForce;
+                	motorCommand[4] = (byte) (axisForce / 2);
                 	
                     break;
                 case JoystickView.BOTTOM:
@@ -227,10 +227,12 @@ public class Feed extends ActionBarActivity {
                     break;
                 case JoystickView.BOTTOM_LEFT:
                 	//
+                	
+                	
                 	motorCommand[1] = MOTOR_BACKWARD;
-                	motorCommand[2] = axisForce;
+                	motorCommand[2] = (byte) (axisForce / 2);
                 	motorCommand[3] = MOTOR_BACKWARD;
-                	motorCommand[4] = (byte) (axisForce / 2);;
+                	motorCommand[4] = axisForce;
                     break;
                 case JoystickView.LEFT:
                 	//System.out.println("M: left");
