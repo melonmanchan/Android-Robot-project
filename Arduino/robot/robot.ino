@@ -1,12 +1,11 @@
-
 #include <Arduino.h>
-#include <Servo.h> 
 #include <Wire.h>
 #include "Adafruit_LEDBackpack.h"
 #include "Adafruit_GFX.h"
 #include "SPI.h" // Comment out this line if using Trinket or Gemma
 #include <SoftwareSerial.h>
 #include <Adafruit_MotorShield.h>
+#include <Servo2.h>
 
 Adafruit_MotorShield motorShield = Adafruit_MotorShield();
 Adafruit_DCMotor *leftMotor = motorShield.getMotor(3);
@@ -16,11 +15,14 @@ Adafruit_8x8matrix eyematrix = Adafruit_8x8matrix();
 SoftwareSerial mouthSerial(2, 3); // RX, TX
 
 
+char robotMessage[40];
+byte robotMessageIndex = 0;
+
 Servo bottomServo;  // create servo object to control a servo 
 Servo topServo; // a maximum of eight servo objects can be created 
  
-int bottomPos = 90;    // variable to store the servo position 
-int topPos = 140;
+byte bottomPos = 90;    // variable to store the servo position 
+byte topPos = 150;
 
 
 static const uint8_t matrixAddr = 0x71;
@@ -42,12 +44,16 @@ unsigned long messageStartTime;
 unsigned long messageCurrentTime;
 unsigned long messageEstimatedTime = 400;
 
+
+String mouth  = "$$$F000111000111111111111111111000111000111111111111111111000111000000111000111111111111111111000111000111111111111111111000111000";
 uint8_t mouthIndex = 0;
+/*
 char* mouthAnimations[5] = {"$$$F000010000111111111111111111000010000111111111111111111000010000000010000111111111111111111000010000111111111111111111000010000",
                             "$$$F000111000111111111111111111000111000111111111111111111000111000000111000111111111111111111000111000111111111111111111000111000",
                             "$$$F001111100111111111111111111001111100111111111111111111001111100001111100111111111111111111001111100111111111111111111001111100",
                             "$$$F000111000111111111111111111000111000111111111111111111000111000000111000111111111111111111000111000111111111111111111000111000",
-                          "$$$F000010000111111111111111111000010000111111111111111111000010000000010000111111111111111111000010000111111111111111111000010000"};
+                          "$$$F000010000111111111111111111000010000111111111111111111000010000000010000111111111111111111000010000111111111111111111000010000"};*/
+                          
 
 static const uint8_t PROGMEM // Bitmaps are stored in program memory
   blinkImg[][8] = {    // Eye animation frames
@@ -148,7 +154,7 @@ void setup() {
   randomSeed(analogRead(A0));
   // Initialize each matrix object:
   eyematrix.setRotation(3);
-  mouthSerial.println(mouthAnimations[1]);
+  mouthSerial.println(mouth);
   
   bottomServo.attach(10);
   topServo.attach(9);  // attaches the servo on pin 9 to the servo object 
@@ -187,7 +193,7 @@ void loop() {
   {
     if (messageCurrentTime - messageStartTime >= messageEstimatedTime)
     {
-         mouthSerial.println(mouthAnimations[1]);
+         mouthSerial.println(mouth);
          //mouthSerial.println("done");
         isTransmittingMessage = false;
     }
@@ -246,7 +252,7 @@ void animateMouth() {
   {
    mouthIndex = 0; 
   }
-  mouthSerial.println(mouthAnimations[mouthIndex]);
+  mouthSerial.println(mouth);
 }
 
 void flushSerial()
@@ -284,7 +290,7 @@ void handleSerialInput()
       
       else if (currentState == "message")
       {
-        handleRobotIncomingMessage();
+        handleRobotIncomingMessage(incomingByte);
       }
     }
 }
@@ -300,10 +306,10 @@ void handleRobotMovement(byte incomingByte)
      else if (motorCmdIndex >= 5 && currentState == "motor")
      {
        byte leftDirection = motorCommand[0];
-       byte leftSpeed= motorCommand[1];
+       byte leftSpeed= motorCommand[1] * 2;
        
        byte rightDirection = motorCommand[2];
-       byte rightSpeed = motorCommand[3];
+       byte rightSpeed = motorCommand[3] * 2;
        runMotor(leftSpeed, leftDirection, leftMotor);
 
        runMotor(rightSpeed, rightDirection, rightMotor);
@@ -323,15 +329,27 @@ void handleRobotMovement(byte incomingByte)
      }
   }
 
-void handleRobotIncomingMessage()
+void handleRobotIncomingMessage(byte incomingByte)
   {
-    String incomingMessage = Serial.readStringUntil('\n');
-    mouthSerial.println("$$$ALL,OFF");
-    mouthSerial.println(incomingMessage);    
-    messageStartTime = millis();
-    messageEstimatedTime = incomingMessage.length() * 700;
-    isTransmittingMessage = true;
-    currentState = "nothing";
+    
+    if ((char)incomingByte != '\n' && robotMessageIndex < 38)
+    {
+      robotMessage[robotMessageIndex] = (char)incomingByte;
+      robotMessageIndex++;
+      
+    }
+    else {
+      robotMessage[robotMessageIndex + 1] = '\0';
+      String messageAsString(robotMessage);
+      mouthSerial.println("$$$ALL,OFF");
+      mouthSerial.println(messageAsString);    
+      messageStartTime = millis();
+      messageEstimatedTime = messageAsString.length() * 700;
+      isTransmittingMessage = true;
+      currentState = "nothing";
+      robotMessageIndex = 0;
+      memset(&robotMessage[0], 0, sizeof(robotMessage));
+    }
   }
 
 void runMotor(byte motorSpeed, byte motorDirection, Adafruit_DCMotor *motor)

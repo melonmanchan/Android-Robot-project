@@ -22,4 +22,14 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true" />
 
+    <Button
+        android:id="@+id/messageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/rightJoystick"
+        android:layout_marginLeft="44dp"
+        android:layout_toRightOf="@+id/leftJoystick"
+        android:onClick="openMessagePrompt"
+        android:text="Message" />
+
 </RelativeLayout>

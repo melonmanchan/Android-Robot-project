@@ -2,10 +2,14 @@ package com.example.robotapp;
 
 
 
+import java.io.UnsupportedEncodingException;
+
 import android.support.v7.app.ActionBarActivity;
+import android.app.AlertDialog;
 import android.bluetooth.*;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -14,6 +18,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 public class Feed extends ActionBarActivity {
@@ -204,9 +209,9 @@ public class Feed extends ActionBarActivity {
 
                 	
                 	motorCommand[1] = MOTOR_FORWARD;
-                	motorCommand[2] = axisForce;
+                	motorCommand[2] = (byte) (axisForce * 0.7);
                 	motorCommand[3] = MOTOR_BACKWARD;
-                	motorCommand[4] = axisForce;
+                	motorCommand[4] = (byte) (axisForce * 0.7);
                 	
                     break;
                 case JoystickView.RIGHT_BOTTOM:
@@ -238,9 +243,9 @@ public class Feed extends ActionBarActivity {
                 	//System.out.println("M: left");
 
                 	motorCommand[1] = MOTOR_BACKWARD;
-                	motorCommand[2] = axisForce;
+                	motorCommand[2] = (byte) (axisForce * 0.7);
                 	motorCommand[3] = MOTOR_FORWARD;
-                	motorCommand[4] = axisForce;
+                	motorCommand[4] = (byte) (axisForce * 0.7);
                 	
                     break;
                 case JoystickView.LEFT_FRONT:
@@ -342,5 +347,50 @@ public class Feed extends ActionBarActivity {
 	    return super.onKeyDown(keycode, e);
 	}
 	
+	public void openMessagePrompt(View view)
+	{
+		final EditText messageEditText = new EditText(this);
+		
+		new AlertDialog.Builder(this)
+	    .setTitle("Message")
+	    .setMessage("Make the robot talk!!!")
+	    .setView(messageEditText)
+	    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+	        public void onClick(DialogInterface dialog, int whichButton) {
+	            String value = messageEditText.getText().toString();
+	            // regex magic to check for ASCII compliantness.
+	            if (!value.matches("\\p{ASCII}+"))
+	            {
+	            	Toast.makeText(getApplicationContext(), "ASCII only please!", Toast.LENGTH_LONG).show();
+	            }
+	            else {
+	            	
+	            	sendMessageToRobot(value);
+	            }
+	        }
+	    }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+	        public void onClick(DialogInterface dialog, int whichButton) {
+	            // Do nothing.
+	        	return;
+	        }
+	    }).show();
+		
+	}
+	
+	private void sendMessageToRobot(String message)
+	{
+		
+		// "z" is the ascii equivelant of 123, which is the message startiung delimiter. "\n" is the ending delimiter.
+		message.replace('\n', ' ');
+		message = "z" + message + "\n";
+		try {
+			byte[] messageBytes = message.getBytes("US-ASCII");
+			btStream.push(messageBytes);
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+				
+	}
 	
 }
