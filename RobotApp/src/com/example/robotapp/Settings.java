@@ -31,7 +31,7 @@ public class Settings extends ActionBarActivity {
 	private final static UUID APP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
 	private String cameraIPAddress;
-	private int cameraPort;
+	private String cameraPort;
 	private int movementUpdateSpeed;
 
 	private ApplicationState appState;
@@ -64,7 +64,7 @@ public class Settings extends ActionBarActivity {
 		sharedPref = getApplicationContext().getSharedPreferences("RobotPreferences", 0);
 			
 		cameraIPAddress = sharedPref.getString("CAMERA_IP_ADDRESS", "127.0.0.1");
-		cameraPort = sharedPref.getInt("CAMERA_PORT", 8080);
+		cameraPort = sharedPref.getString("CAMERA_PORT", "8080");
 		movementUpdateSpeed = sharedPref.getInt("BT_UPDATE_SPEED", 115);
 		
 		
@@ -112,7 +112,7 @@ public class Settings extends ActionBarActivity {
 		SharedPreferences.Editor editor = sharedPref.edit();
 		
 		editor.putString("CAMERA_IP_ADDRESS", cameraIPAddressTextView.getText().toString());
-		editor.putInt("CAMERA_PORT", Integer.parseInt(cameraPortTextView.getText().toString()));
+		editor.putString("CAMERA_PORT", cameraPortTextView.getText().toString());
 		editor.putInt("BT_UPDATE_SPEED", Integer.parseInt(updateSpeedTextView.getText().toString()));
 
 		editor.commit();
@@ -279,9 +279,9 @@ public class Settings extends ActionBarActivity {
 			e.printStackTrace();
 		}
 		*/
-		int updateSpeed = Integer.parseInt(updateSpeedTextView.getText().toString());
-		intent.putExtra("BT_UPDATE_SPEED", updateSpeed);
-		
+		intent.putExtra("BT_UPDATE_SPEED", Integer.parseInt(updateSpeedTextView.getText().toString()));
+		intent.putExtra("CAMERA_IP_ADDRESS", cameraIPAddressTextView.getText().toString());
+		intent.putExtra("CAMERA_PORT", cameraPortTextView.getText().toString());
 		
 		startActivity(intent);
 	}

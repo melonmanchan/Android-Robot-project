@@ -2,7 +2,10 @@ package com.example.robotapp;
 
 
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.net.Socket;
+import java.net.UnknownHostException;
 
 import android.support.v7.app.ActionBarActivity;
 import android.app.AlertDialog;
@@ -12,6 +15,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.KeyEvent;
@@ -53,9 +57,13 @@ public class Feed extends ActionBarActivity {
 	private Runnable movementRunnable;
 	
 	private int movementUpdateSpeed;
+	private String videoIpAddress = "192.168.0.5";
+	private String videoPort = "5000";
+	
 	
 	private JoystickView leftJoystick;
 	private JoystickView rightJoystick;
+	private MjpegView videoFeed = null;
 	
 	private ApplicationState appState;
 	private BluetoothStreamManager btStream;
@@ -74,12 +82,16 @@ public class Feed extends ActionBarActivity {
 			Bundle extras = getIntent().getExtras();
 			if (extras == null) {
 				movementUpdateSpeed = 120;
+				System.out.println("null");
 			}
 			else {
 				movementUpdateSpeed = extras.getInt("BT_UPDATE_SPEED");
+				videoIpAddress = extras.getString("CAMERA_IP_ADDRESS");
+				videoPort = extras.getString("CAMERA_PORT");
+				
 			}
 		}
-		
+		System.out.println(videoIpAddress +videoPort );
 		appState = (ApplicationState)this.getApplication();
 		btStream = appState.getStateManager();
 		btStream.setCurrentActivity(this);
@@ -100,6 +112,8 @@ public class Feed extends ActionBarActivity {
 		initiateMovementHandlers();
 		initiateJoystickListeners();
 		
+		videoFeed = (MjpegView) findViewById(R.id.videoFeed);
+		new DoRead().execute( videoIpAddress, videoPort);
 	}
 
 	@Override
@@ -108,11 +122,35 @@ public class Feed extends ActionBarActivity {
 		System.out.println("changed activity");
 		btStream.setCurrentActivity(this);
 		movementHandler.postDelayed(movementRunnable, movementUpdateSpeed);
+		if (videoFeed != null)
+		{
+			videoFeed.resumePlayback();
+		}
 	}
 	
+	protected void onPause() {
+		super.onPause();
+		if (videoFeed != null)
+		{
+			videoFeed.stopPlayback();
+		}
+		movementHandler.removeCallbacks(movementRunnable);
+	}
+	
+	
+	@Override
 	protected void onStop() {
 		super.onStop();
 		movementHandler.removeCallbacks(movementRunnable);
+	}
+	
+	protected void onDestroy() {
+		
+		if (videoFeed != null)
+		{
+			videoFeed.freeCameraMemory();
+		}
+		super.onDestroy();
 	}
 	
 	private void initiateMovementHandlers() {
@@ -392,5 +430,30 @@ public class Feed extends ActionBarActivity {
 		}
 				
 	}
+	
+    public class DoRead extends AsyncTask<String, Void, MjpegInputStream> {
+    	protected MjpegInputStream doInBackground( String... params){
+    		Socket socket = null;
+    		try {
+				socket = new Socket( params[0], Integer.valueOf( params[1]));
+	    		return (new MjpegInputStream(socket.getInputStream()));
+			} catch (UnknownHostException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		return null;
+    	}
+    	
+        protected void onPostExecute(MjpegInputStream result) {
+        	videoFeed.setSource(result);
+            if(result!=null) result.setSkip(1);
+            videoFeed.setDisplayMode(MjpegView.SIZE_BEST_FIT);
+            videoFeed.showFps(true);
+        }
+    }
+	
 	
 }
