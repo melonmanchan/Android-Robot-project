@@ -250,7 +250,7 @@ void processimage (const void *p, int l)
 	
 }
 
-void Java_com_example_robotapp_MjpegInputStream_pixeltobmp( JNIEnv* env,jobject thiz,
+void Java_com_camera_simplemjpeg_MjpegInputStream_pixeltobmp( JNIEnv* env,jobject thiz,
 	 jbyteArray jp, jint l, jobject bmp){
 
 
@@ -301,7 +301,7 @@ void Java_com_example_robotapp_MjpegInputStream_pixeltobmp( JNIEnv* env,jobject 
 		(*env)->ReleaseByteArrayElements(env, jp, p, 0);
 }
 
-void Java_com_example_robotapp_MjpegInputStream_freeCameraMemory( JNIEnv* env,jobject thiz){
+void Java_com_camera_simplemjpeg_MjpegInputStream_freeCameraMemory( JNIEnv* env,jobject thiz){
 
 	if(rgb) free(rgb);
 	rgb = NULL;
