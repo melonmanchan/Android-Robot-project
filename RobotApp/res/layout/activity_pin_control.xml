@@ -22,7 +22,8 @@
             android:id="@+id/ArduinoPin4"
             android:background="@drawable/button_bg"
             android:textOff="4"
-            android:textOn="4" />
+            android:textOn="4"
+            android:onClick="pinToggleButtonClick" />
 
         <ToggleButton
             android:id="@+id/ArduinoPin5"
@@ -30,7 +31,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/button_bg"
             android:textOff="5"
-            android:textOn="5" />
+            android:textOn="5"
+            android:onClick="pinToggleButtonClick" />
 
         <ToggleButton
             android:id="@+id/ArduinoPin6"
@@ -38,7 +40,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/button_bg"
             android:textOff="6"
-            android:textOn="6" />
+            android:textOn="6"
+            android:onClick="pinToggleButtonClick" />
 
         <ToggleButton
             android:id="@+id/ArduinoPin7"
@@ -46,7 +49,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/button_bg"
             android:textOff="7"
-            android:textOn="7" />
+            android:textOn="7"
+            android:onClick="pinToggleButtonClick" />
 
         <ToggleButton
             android:id="@+id/ArduinoPin8"
@@ -54,7 +58,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/button_bg"
             android:textOff="8"
-            android:textOn="8" />
+            android:textOn="8"
+            android:onClick="pinToggleButtonClick" />
 
         <ToggleButton
             android:id="@+id/ArduinoPin11"
@@ -62,7 +67,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/button_bg"
             android:textOff="11"
-            android:textOn="11" />
+            android:textOn="11"
+            android:onClick="pinToggleButtonClick" />
 
         <ToggleButton
             android:id="@+id/ArduinoPin12"
@@ -70,7 +76,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/button_bg"
             android:textOff="12"
-            android:textOn="12" />
+            android:textOn="12"
+            android:onClick="pinToggleButtonClick" />
 
         <ToggleButton
             android:id="@+id/ArduinoPin13"
@@ -78,7 +85,8 @@
             android:layout_height="wrap_content"
             android:background="@drawable/button_bg"
             android:textOff="13"
-            android:textOn="13" />
+            android:textOn="13"
+            android:onClick="pinToggleButtonClick" />
     </GridLayout>
 
     <TextView
@@ -112,19 +120,19 @@
             android:id="@+id/pin11SeekBar"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:max="255" />
+            android:max="127" />
 
         <SeekBar
             android:id="@+id/pin6SeekBar"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:max="255" />
+            android:max="127" />
 
         <SeekBar
             android:id="@+id/pin5SeekBar"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:max="255" />
+            android:max="127" />
     </LinearLayout>
 
     <TextView

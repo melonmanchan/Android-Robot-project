@@ -24,13 +24,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
-
+import com.camera.simplemjpeg.*;
 public class Feed extends ActionBarActivity {
 
 	
 	private boolean motorStateChanged = false;
 	private boolean servoStateChanged = false; 
-	
+	private boolean isTransmittingMessage = false;;
+
 	// Movement commands are sent to arduino as a byte array. first byte of array is delimiter, 2nd is left motor direction, 3rd is left motor speed
 	// 4th is right motor direction, 5th is right motor speed, 6th is servo movement.
 	private static byte MOTOR_COMMAND_DELIMITER = 123;
@@ -53,6 +54,8 @@ public class Feed extends ActionBarActivity {
 	// Byte indicating the speed the motor should run, on axis up, down, left and right.
 	private byte axisForce;
 	
+	private byte[] motorCommand;
+	
 	private Handler movementHandler;
 	private Runnable movementRunnable;
 	
@@ -67,9 +70,7 @@ public class Feed extends ActionBarActivity {
 	
 	private ApplicationState appState;
 	private BluetoothStreamManager btStream;
-
-	private byte[] motorCommand;
-	
+		
 	 // F = 70
 	 // S = 83
 	 // R = 82
@@ -130,17 +131,21 @@ public class Feed extends ActionBarActivity {
 	
 	protected void onPause() {
 		super.onPause();
-		if (videoFeed != null)
+		/*if (videoFeed != null)
 		{
 			videoFeed.stopPlayback();
 		}
-		movementHandler.removeCallbacks(movementRunnable);
+		movementHandler.removeCallbacks(movementRunnable);*/
 	}
 	
 	
 	@Override
 	protected void onStop() {
 		super.onStop();
+		if (videoFeed != null)
+		{
+			videoFeed.stopPlayback();
+		}
 		movementHandler.removeCallbacks(movementRunnable);
 	}
 	
@@ -158,6 +163,8 @@ public class Feed extends ActionBarActivity {
 		movementHandler = new Handler();
 		movementRunnable = new Runnable() {
 			public void run() {
+				if (!isTransmittingMessage)
+				{
 					byte[] temp = motorCommand;
 					
 					if (servoStateChanged == false)
@@ -179,6 +186,8 @@ public class Feed extends ActionBarActivity {
 					motorStateChanged = false;
 				
 				movementHandler.postDelayed(movementRunnable, movementUpdateSpeed);
+				
+				}
 			}
 		};
 		movementHandler.postDelayed(movementRunnable, movementUpdateSpeed);
@@ -387,6 +396,7 @@ public class Feed extends ActionBarActivity {
 	
 	public void openMessagePrompt(View view)
 	{
+		
 		final EditText messageEditText = new EditText(this);
 		
 		new AlertDialog.Builder(this)
@@ -414,19 +424,24 @@ public class Feed extends ActionBarActivity {
 	    }).show();
 		
 	}
-	
+ 
 	private void sendMessageToRobot(String message)
 	{
-		
+		isTransmittingMessage = true;
 		// "z" is the ascii equivelant of 123, which is the message startiung delimiter. "\n" is the ending delimiter.
 		message.replace('\n', ' ');
 		message = "z" + message + "\n";
 		try {
 			byte[] messageBytes = message.getBytes("US-ASCII");
 			btStream.push(messageBytes);
+			Thread.sleep(100);
+			isTransmittingMessage = false;
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		}
+		catch (InterruptedException e) {
+			
 		}
 				
 	}
@@ -449,7 +464,11 @@ public class Feed extends ActionBarActivity {
     	
         protected void onPostExecute(MjpegInputStream result) {
         	videoFeed.setSource(result);
-            if(result!=null) result.setSkip(1);
+           if(result!=null)
+           {
+            	result.setSkip(1);
+            	
+           }
             videoFeed.setDisplayMode(MjpegView.SIZE_BEST_FIT);
             videoFeed.showFps(true);
         }

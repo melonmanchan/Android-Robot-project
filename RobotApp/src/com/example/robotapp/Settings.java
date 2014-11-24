@@ -288,6 +288,7 @@ public class Settings extends ActionBarActivity {
 	
 	public void switchToPin(View view)
 	{
+		
 		if (btStreamManager.getInputStream() == null)
 		{
 			Toast.makeText(getApplicationContext(), "You must have a valid bluetooth device paired to continue!", Toast.LENGTH_LONG).show();

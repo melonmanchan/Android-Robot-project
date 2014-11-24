@@ -25,6 +25,7 @@
         <activity
             android:name=".Settings"
             android:configChanges="keyboardHidden|orientation"
+            android:screenOrientation="portrait"
             android:label="Cool robot"
             android:windowSoftInputMode="adjustPan" >
             <intent-filter>
@@ -38,12 +39,10 @@
             android:label="@string/title_activity_settings" >
         </activity>
         <activity
-            android:name=".Settingstest"
-            android:label="@string/title_activity_settingstest" >
-        </activity>
-        <activity
             android:name=".PinControl"
-            android:label="@string/title_activity_pin_control" >
+            android:label="@string/title_activity_pin_control"
+            android:screenOrientation="portrait" >
+            
         </activity>
     </application>
 

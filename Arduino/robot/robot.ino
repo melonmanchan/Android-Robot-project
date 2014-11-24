@@ -122,7 +122,8 @@ byte incomingByte;
 
 static const byte MOTOR_COMMAND_DELIMITER = 123;
 static const byte MESSAGE_DELIMITER = 122;
-static const byte PIN_DELIMITER = 121;
+static const byte PIN_TOGGLE_DELIMITER = 121;
+static const byte PIN_PWM_DELIMITER = 120;
 
 static const byte MOTOR_FORWARD = 70;
 static const byte MOTOR_RELEASE = 82;
@@ -142,16 +143,19 @@ static const byte SERVO_NOTHING = 9;
 boolean isTransmittingMessage = false;
 
 byte motorCommand[5];
-int motorCmdIndex = 0;
+byte motorCmdIndex = 0;
 long previousMillis = 0; 
-String currentState;
 
+byte pinToggleCommand[2];
+byte pinToggleCmdIndex = 0;
 
+typedef enum {NOTHING, MOTOR, MESSAGE, TOGGLE, PINPWM} state;
+state currentState;
 
 void setup() {
   motorShield.begin();
   eyematrix.begin(matrixAddr);
-  currentState = "nothing";
+  currentState = NOTHING;
   mouthSerial.begin(9600);
   mouthSerial.println("$$$SPEED100");
   Serial.begin(115200);
@@ -251,15 +255,6 @@ void animateEyes() {
   eyematrix.writeDisplay();
 }
 
-void animateMouth() {
-
-  mouthIndex++;
-  if (mouthIndex > 4)
-  {
-   mouthIndex = 0; 
-  }
-  mouthSerial.println(mouth);
-}
 
 void flushSerial()
   {
@@ -273,41 +268,70 @@ void handleSerialInput()
   {
     timeSinceLastCmd = millis();
     incomingByte = Serial.read();
-    if (incomingByte == MOTOR_COMMAND_DELIMITER && currentState == "nothing")
+    
+    if (incomingByte == MOTOR_COMMAND_DELIMITER && currentState == NOTHING)
     {
-     currentState = "motor";
-     return;
-    }
-    else if (incomingByte == MESSAGE_DELIMITER && currentState == "nothing")
-    {
-     currentState = "message";
-     return;
-    }
-    else if (incomingByte == PIN_DELIMITER && currentState == "nothing")
-    {
-     currentState = "pin";
+     currentState = MOTOR;
      return;
     }
     
+    else if (incomingByte == MESSAGE_DELIMITER && currentState == NOTHING)
+    {
+     currentState = MESSAGE;
+     return;
+    }
     
-    if (currentState == "motor")
-      {
-        handleRobotMovement(incomingByte);
-      }
+    else if (incomingByte == PIN_TOGGLE_DELIMITER && currentState == NOTHING)
+    {
+     currentState = TOGGLE;
+     return;
+    }
+    
+    else if (incomingByte == PIN_PWM_DELIMITER && currentState == NOTHING)
+    {
+     currentState = PINPWM;
+     return; 
+    }
+    
+    if (currentState == MOTOR)
+     {
+       handleRobotMovement(incomingByte);
+     }
       
-      else if (currentState == "message")
-      {
-        handleRobotIncomingMessage(incomingByte);
-      }
+     else if (currentState == MESSAGE)
+     {
+       handleRobotIncomingMessage(incomingByte);
+     }
+     
+     else if (currentState == TOGGLE)
+     {
+       delay(50);
+       
+       byte secondByte = Serial.read();
+       
+       changePinToggleState(incomingByte, secondByte);
+     }
+      
+     else if (currentState == PINPWM)
+     {
+      delay(50);
+      // multiply by two since Java bytes are from -127 to 127 and we want the value from 0 to 255.
+      byte secondByte = Serial.read() * 2;
+       
+      changePinPWMState(incomingByte, secondByte);
+     }
     }
-    else {
-     if (currentCmdTime - timeSinceLastCmd > 10000)
+    
+    
+    else
     {
-       currentState = "nothing";
+     if (currentCmdTime - timeSinceLastCmd > 10000)
+     {
+       currentState = NOTHING;
        runMotor(0, MOTOR_RELEASE, leftMotor);
        runMotor(0, MOTOR_RELEASE, rightMotor);
 
-    } 
+     } 
     }
 }
 
@@ -319,7 +343,7 @@ void handleRobotMovement(byte incomingByte)
         motorCmdIndex++;
       }
       
-     else if (motorCmdIndex >= 5 && currentState == "motor")
+     else if (motorCmdIndex >= 5 && currentState == MOTOR)
      {
        byte leftDirection = motorCommand[0];
        byte leftSpeed= motorCommand[1] * 2;
@@ -337,13 +361,12 @@ void handleRobotMovement(byte incomingByte)
          moveServo(servoMovement);
         }
        motorCmdIndex = 0;
-       currentState = "nothing";
+       currentState = NOTHING;
      }
   }
 
 void handleRobotIncomingMessage(byte incomingByte)
-  {
-    
+  { 
     if ((char)incomingByte != '\n' && robotMessageIndex < 38)
     {
       robotMessage[robotMessageIndex] = (char)incomingByte;
@@ -358,7 +381,7 @@ void handleRobotIncomingMessage(byte incomingByte)
       messageStartTime = millis();
       messageEstimatedTime = messageAsString.length() * 600;
       isTransmittingMessage = true;
-      currentState = "nothing";
+      currentState = NOTHING;
       robotMessageIndex = 0;
       memset(&robotMessage[0], 0, sizeof(robotMessage));
     }
@@ -433,4 +456,73 @@ void moveServo(byte servoDirection)
   bottomServo.write(bottomPos);
   topServo.write(topPos);  // 
   
+  }
+  /*
+  void handlePinToggle(byte incomingByte)
+  {
+   if (pinToggleCmdIndex <= 1)
+   {
+     pinToggleCommand[pinToggleCmdIndex] = incomingByte;
+     pinToggleCmdIndex++;
+   }
+    
+   else if (pinToggleCmdIndex >= 2 && currentState == TOGGLE)
+   {
+    changePinToggleState(pinToggleCommand[0], pinToggleCommand[1]);
+    pinToggleCmdIndex = 0;
+    currentState = NOTHING;
+   }
+  }*/
+  
+  void changePinToggleState(byte pin_num, byte isOn)
+  { 
+   int pin_value = LOW;
+       
+   if (isOn == 1) pin_value = HIGH;
+   else if (isOn == 0) pin_value = LOW;
+   
+   switch(pin_num)
+   {
+     case 4:
+       pinMode(4, OUTPUT);
+       digitalWrite(4, isOn);
+       break;
+       
+     case 6:
+       pinMode(6, OUTPUT);
+       digitalWrite(6, isOn);
+       break;
+       
+     case 7:
+       pinMode(7, OUTPUT);
+       digitalWrite(7, isOn);     
+       break;
+       
+     case 8:
+       pinMode(8, OUTPUT);
+       digitalWrite(8, isOn);     
+       break;
+       
+     case 11:
+       pinMode(11, OUTPUT);
+       digitalWrite(11, isOn);     
+       break;
+       
+     case 12:
+       pinMode(12, OUTPUT);
+       digitalWrite(12, isOn);     
+       break;
+       
+     case 13:
+       pinMode(13, OUTPUT);     
+       digitalWrite(13, isOn);     
+       break;     
+   }
+   currentState = NOTHING; 
+  }
+  
+  void changePinPWMState(byte pin_num, byte value)
+  {
+   analogWrite(pin_num, value); 
+   currentState = NOTHING;
   }

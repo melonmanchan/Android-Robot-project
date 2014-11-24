@@ -86,34 +86,52 @@ public class BluetoothStreamManager {
 		};
 	}
 	
-	public OutputStream getInputStream() {
+	public OutputStream getInputStream() 
+	{
 		return outputStream;
 	}
 
-	public void setOutputStream(OutputStream outputStream) {
+	public void setOutputStream(OutputStream outputStream) 
+	{
 		this.outputStream = outputStream;
 	}
 
-	public ConcurrentLinkedQueue<byte[]> getCommandStack() {
+	public ConcurrentLinkedQueue<byte[]> getCommandStack() 
+	{
 		return commandQueue;
 	}
 
-	public void setCommandStack(ConcurrentLinkedQueue<byte[]> commandQueue) {
+	public void setCommandStack(ConcurrentLinkedQueue<byte[]> commandQueue) 
+	{
 		this.commandQueue = commandQueue;
 	}
 
-	public void push(byte[] command) {
+	public void push(byte[] command) 
+	{
 		commandQueue.add(command);
 	}
 	
-	public byte[] peek() {
+	public byte[] peek() 
+	{
 		return commandQueue.peek();
 	}
 
-	public void setCurrentActivity(Activity activity) {
+	public void setCurrentActivity(Activity activity) 
+	{
 		this.currentActivity = activity;
 	}
 
+	public void closeStream()
+	{
+		if(this.outputStream != null)
+			try {
+				this.outputStream.close();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+	}
+	
 }
 /*
 public class BluetoothStreamManager implements Parcelable {
