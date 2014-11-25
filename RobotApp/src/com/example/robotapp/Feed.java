@@ -114,7 +114,8 @@ public class Feed extends ActionBarActivity {
 		initiateJoystickListeners();
 		
 		videoFeed = (MjpegView) findViewById(R.id.videoFeed);
-		new DoRead().execute( videoIpAddress, videoPort);
+		fetchVideoFeed();
+
 	}
 
 	@Override
@@ -131,21 +132,17 @@ public class Feed extends ActionBarActivity {
 	
 	protected void onPause() {
 		super.onPause();
-		/*if (videoFeed != null)
+		if (videoFeed != null)
 		{
 			videoFeed.stopPlayback();
 		}
-		movementHandler.removeCallbacks(movementRunnable);*/
+		movementHandler.removeCallbacks(movementRunnable);
 	}
 	
 	
 	@Override
 	protected void onStop() {
 		super.onStop();
-		if (videoFeed != null)
-		{
-			videoFeed.stopPlayback();
-		}
 		movementHandler.removeCallbacks(movementRunnable);
 	}
 	
@@ -386,6 +383,11 @@ public class Feed extends ActionBarActivity {
 	public boolean onKeyDown(int keycode, KeyEvent e) {
 	    switch(keycode) {
 	        case KeyEvent.KEYCODE_MENU:
+	    		if (videoFeed != null)
+	    		{
+	    			videoFeed.stopPlayback();
+	    		}
+	    		movementHandler.removeCallbacks(movementRunnable);
 	            Intent menuIntent = new Intent(this, Settings.class);
 	            startActivity(menuIntent);
 	            return true;
@@ -446,6 +448,21 @@ public class Feed extends ActionBarActivity {
 				
 	}
 	
+	public void refreshFeed(View view)
+	{
+		
+		videoFeed = null;
+		videoFeed = (MjpegView) findViewById(R.id.videoFeed);
+		fetchVideoFeed();
+		
+	}
+	
+	
+	public void fetchVideoFeed()
+	{
+		new DoRead().execute( videoIpAddress, videoPort);
+	}
+	
     public class DoRead extends AsyncTask<String, Void, MjpegInputStream> {
     	protected MjpegInputStream doInBackground( String... params){
     		Socket socket = null;
@@ -466,7 +483,7 @@ public class Feed extends ActionBarActivity {
         	videoFeed.setSource(result);
            if(result!=null)
            {
-            	result.setSkip(1);
+            	result.setSkip(2);
             	
            }
             videoFeed.setDisplayMode(MjpegView.SIZE_BEST_FIT);

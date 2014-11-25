@@ -28,10 +28,10 @@
         android:id="@+id/testButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="testFunction"
-        android:text="TESTING"
-        android:layout_gravity="center_horizontal|bottom"
-        android:layout_marginRight="30dp" />"
+        android:text="Refresh"
+        android:layout_gravity="top|right"
+        android:layout_marginRight="30dp"
+        android:onClick="refreshFeed" />
     
     <Button
         android:id="@+id/messageButton"

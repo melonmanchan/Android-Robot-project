@@ -305,7 +305,7 @@ void handleSerialInput()
      
      else if (currentState == TOGGLE)
      {
-       delay(50);
+       delay(25);
        
        byte secondByte = Serial.read();
        
@@ -314,7 +314,7 @@ void handleSerialInput()
       
      else if (currentState == PINPWM)
      {
-      delay(50);
+      delay(25);
       // multiply by two since Java bytes are from -127 to 127 and we want the value from 0 to 255.
       byte secondByte = Serial.read() * 2;
        

@@ -144,6 +144,23 @@ public class PinControl extends ActionBarActivity {
 	{
 		public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser)
 		{
+			switch(seekBar.getId())
+			{
+			case R.id.pin5SeekBar:
+				pwmCommand[1] = 5;
+				break;
+			case R.id.pin6SeekBar:
+				pwmCommand[1] = 6;
+				break;
+			case R.id.pin11SeekBar:
+				pwmCommand[1] = 11;
+				break;
+			}
+			pwmCommand[2] = (byte) progress;
+			
+			System.out.println(pwmCommand[0] + " " + pwmCommand[1] + " " + pwmCommand[2]);
+			
+			btStream.push(pwmCommand);
 
 		}
 
@@ -155,6 +172,7 @@ public class PinControl extends ActionBarActivity {
 
 		@Override
 		public void onStopTrackingTouch(SeekBar seekBar) {
+			/*
 			// TODO Auto-generated method stub
 			switch(seekBar.getId())
 			{
@@ -172,7 +190,7 @@ public class PinControl extends ActionBarActivity {
 			
 			System.out.println(pwmCommand[0] + " " + pwmCommand[1] + " " + pwmCommand[2]);
 			
-			btStream.push(pwmCommand);
+			btStream.push(pwmCommand);*/
 		}
 		
 	}
