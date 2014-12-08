@@ -2,20 +2,19 @@ package com.example.robotapp;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Stack;
 import java.util.concurrent.ConcurrentLinkedQueue;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.widget.Toast;
 
 public class BluetoothStreamManager {
 	
 	// reference to current Activity
 	private Activity currentActivity;
+	
+	private String deviceAddress;
 	
 	private BluetoothDevice bluetoothDevice;
     // Stream for writing bytes to bluetooth
@@ -29,13 +28,13 @@ public class BluetoothStreamManager {
 	
 	public BluetoothStreamManager()
 	{
+		deviceAddress = "";
 		outputStream = null;
 		commandQueue = new ConcurrentLinkedQueue<byte[]>();
 		workThread = new Thread()
 		{
 			@Override
 		    public void run() {
-			       android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
 			        try 
 			    	{
 				        		while(!Thread.interrupted())
@@ -96,6 +95,16 @@ public class BluetoothStreamManager {
 		this.outputStream = outputStream;
 	}
 
+	public String getDeviceAddress()
+	{
+		return deviceAddress;
+	}
+	
+	public void setDeviceAddress(String deviceAddress)
+	{
+		this.deviceAddress = deviceAddress;
+	}
+	
 	public ConcurrentLinkedQueue<byte[]> getCommandStack() 
 	{
 		return commandQueue;
@@ -133,76 +142,3 @@ public class BluetoothStreamManager {
 	}
 	
 }
-/*
-public class BluetoothStreamManager implements Parcelable {
-
-	private OutputStream outputStream;
-	private Stack<String> commandStack;
-	
-	public BluetoothStreamManager()
-	{
-		outputStream = null;
-		commandStack = new Stack<String>();
-	}
-	
-	public BluetoothStreamManager(OutputStream outputStream)
-	{
-		this.outputStream = outputStream;
-	}
-	
-	public OutputStream getInputStream() {
-		return outputStream;
-	}
-
-	public void setOutputStream(OutputStream outputStream) {
-		this.outputStream = outputStream;
-	}
-
-	public Stack<String> getCommandStack() {
-		return commandStack;
-	}
-
-	public void setCommandStack(Stack<String> commandStack) {
-		this.commandStack = commandStack;
-	}
-
-	public void push(String command) {
-		commandStack.push(command);
-	}
-	
-	public String peek() {
-		return commandStack.peek();
-	}
-	
-	@Override
-	public int describeContents() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-	 	dest.writeValue(outputStream);
-	 	dest.writeValue(commandStack);
-	}
-
-	
-	    public static final Parcelable.Creator<BluetoothStreamManager> CREATOR = new Parcelable.Creator<BluetoothStreamManager>() {
-	  public BluetoothStreamManager createFromParcel(Parcel in) {
-	    return new BluetoothStreamManager(in);
-	 }
-
-	@Override
-	public BluetoothStreamManager[] newArray(int size) {
-		// TODO Auto-generated method stub
-		return new BluetoothStreamManager[size];
-	}
-
-	    };
-	    
-	    private BluetoothStreamManager(Parcel in) {
-	    	outputStream = (OutputStream) in.readValue(OutputStream.class.getClassLoader());
-	    	commandStack = (Stack<String>) in.readValue(Stack.class.getClassLoader());
-	    }
-
-}*/

@@ -13,6 +13,7 @@ import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import com.example.robotapp.R;
 
 public class MjpegView extends SurfaceView implements SurfaceHolder.Callback {
    

@@ -5,5 +5,21 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">App settings</string>
     <string name="title_activity_pin_control">Arduino pin control</string>
+    <string name="camera_feed_ip_address">Camera feed IP Address</string>
+    <string name="camera_feed_port">Camera feed port</string>
+    <string name="go_to_feed">Go to feed</string>
+    <string name="go_to_pin_control">Go to pin control</string>
+    <string name="find_new_devices">Find new devices</string>
+    <string name="update_speed">Update speed</string>
+    <string name="default_bt_update_speed">120</string>
+    <string name="video_width">Video width</string>
+    <string name="use_camera_">Use camera?</string>
+    <string name="video_height">Video height</string>
+    <string name="message_btn">Message</string>
+    <string name="toggle_pins_on_off">Toggle pins on/off</string>
+    <string name="analogwrite_from_0_255">AnalogWrite from 0 - 255</string>
+    <string name="pin_11_label">Pin 11</string>
+    <string name="pin_6_label">Pin 6</string>
+    <string name="pin_5_label">Pin 5</string>
 
 </resources>

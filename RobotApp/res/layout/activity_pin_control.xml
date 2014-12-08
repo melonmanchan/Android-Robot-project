@@ -95,7 +95,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/gridLayout1"
         android:layout_alignParentTop="true"
-        android:text="Toggle pins on/off"
+        android:text="@string/toggle_pins_on_off"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <View
@@ -140,7 +140,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/divider"
         android:layout_below="@+id/divider"
-        android:text="AnalogWrite from 0 - 255"
+        android:text="@string/analogwrite_from_0_255"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
@@ -150,7 +150,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignTop="@+id/linearLayout1"
         android:layout_marginTop="14dp"
-        android:text="Pin 11" />
+        android:text="@string/pin_11_label" />
 
     <TextView
         android:id="@+id/textView2"
@@ -159,7 +159,7 @@
         android:layout_alignLeft="@+id/textView1"
         android:layout_below="@+id/textView1"
         android:layout_marginTop="16dp"
-        android:text="Pin 6" />
+        android:text="@string/pin_6_label" />
 
     <TextView
         android:id="@+id/textView3"
@@ -167,6 +167,6 @@
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/linearLayout1"
         android:layout_alignLeft="@+id/textView2"
-        android:text="Pin 5" />
+        android:text="@string/pin_5_label" />
 
 </RelativeLayout>

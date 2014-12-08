@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/cameraIPText"
         android:layout_below="@+id/cameraIPText"
-        android:text="Camera feed port"
+        android:text="@string/camera_feed_port"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <EditText
@@ -34,7 +34,7 @@
         android:layout_alignLeft="@+id/deviceList"
         android:layout_alignParentTop="true"
         android:layout_marginTop="15dp"
-        android:text="Camera feed IP Address"
+        android:text="@string/camera_feed_ip_address"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <View
@@ -52,7 +52,7 @@
         android:layout_alignBottom="@+id/pinButton"
         android:layout_alignLeft="@+id/findNewDevices"
         android:onClick="switchToFeed"
-        android:text="Go to feed" />
+        android:text="@string/go_to_feed" />
 
     <Button
         android:id="@+id/pinButton"
@@ -61,7 +61,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignRight="@+id/deviceList"
         android:onClick="switchToPin"
-        android:text="Go to pin control" />
+        android:text="@string/go_to_pin_control" />
 
     <Button
         android:id="@+id/findNewDevices"
@@ -70,14 +70,16 @@
         android:layout_above="@+id/feedButton"
         android:layout_alignLeft="@+id/deviceList"
         android:onClick="discoverBluetoothDevices"
-        android:text="Find new devices" />
+        android:text="@string/find_new_devices" />
 
     <EditText
         android:id="@+id/cameraIPText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
+        android:layout_alignRight="@+id/findNewDevices"
         android:layout_below="@+id/textView1"
+        android:inputType="text"
         android:ems="10" />
 
     <ListView
@@ -95,7 +97,7 @@
         android:layout_alignLeft="@+id/cameraPortText"
         android:layout_below="@+id/cameraPortText"
         android:layout_marginTop="15dp"
-        android:text="Update speed"
+        android:text="@string/update_speed"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <EditText
@@ -103,9 +105,60 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignLeft="@+id/cameraPortText"
+        android:layout_alignRight="@+id/cameraPortText"
         android:layout_below="@+id/textView3"
         android:ems="10"
         android:inputType="number"
-        android:text="120" />
+        android:text="@string/default_bt_update_speed" />
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/cameraPortText"
+        android:layout_toRightOf="@+id/cameraIPText"
+        android:text="@string/video_width"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <CheckBox
+        android:id="@+id/isCameraEnabledCheckBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/textView1"
+        android:layout_alignBottom="@+id/textView1"
+        android:layout_alignRight="@+id/view1"
+        android:text="@string/use_camera_" />
+
+    <EditText
+        android:id="@+id/cameraWidthText"
+        android:layout_width="75dp"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/cameraWidthText"
+        android:layout_alignRight="@+id/textView4"
+        android:layout_below="@+id/textView4"
+        android:ems="10"
+        android:inputType="number" >
+
+        <requestFocus />
+    </EditText>
+
+    <TextView
+        android:id="@+id/TextView01"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/cameraHeightText"
+        android:layout_toRightOf="@+id/cameraIPText"
+        android:text="@string/video_height"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <EditText
+        android:id="@+id/cameraHeightText"
+        android:layout_width="75dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/BTupdateSpeedText"
+        android:layout_alignBottom="@+id/BTupdateSpeedText"
+        android:layout_alignLeft="@+id/cameraWidthText"
+        android:ems="10"
+        android:inputType="number" />
 
 </RelativeLayout>

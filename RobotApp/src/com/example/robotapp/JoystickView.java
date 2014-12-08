@@ -65,6 +65,7 @@ public class JoystickView extends View implements Runnable {
 		initJoystickView();
 	}
 
+	
 	protected void initJoystickView() {
 		mainCircle = new Paint(Paint.ANTI_ALIAS_FLAG);
 		mainCircle.setColor(Color.WHITE);

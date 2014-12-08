@@ -24,21 +24,26 @@ Adafruit_DCMotor *leftMotor = motorShield.getMotor(3);
 Adafruit_DCMotor *rightMotor = motorShield.getMotor(4);
 
 Adafruit_8x8matrix eyematrix = Adafruit_8x8matrix();
+
+// Bit banged serial for the mouth
 SoftwareSerial mouthSerial(2, 3); // RX, TX
 
-
+// char-array to hold the incoming message
 char robotMessage[40];
 byte robotMessageIndex = 0;
 
-Servo bottomServo;  // create servo object to control a servo 
-Servo topServo; // a maximum of eight servo objects can be created 
+// Two robot servos
+Servo bottomServo;
+Servo topServo; 
  
-byte bottomPos = 90;    // variable to store the servo position 
+// Starting positions for servos.
+byte bottomPos = 90;
 byte topPos = 150;
 
 
 static const uint8_t matrixAddr = 0x71;
 
+// Timers used to "simulate" threading
 unsigned long eyeTimer;
 unsigned long eyeLastTimer;
 unsigned long eyeAcc;
@@ -120,11 +125,13 @@ int8_t dY   = 0;   // Distance from prior to new position
 
 byte incomingByte;
 
+// Bytes to know what messages are about to be received
 static const byte MOTOR_COMMAND_DELIMITER = 123;
 static const byte MESSAGE_DELIMITER = 122;
 static const byte PIN_TOGGLE_DELIMITER = 121;
 static const byte PIN_PWM_DELIMITER = 120;
 
+// Bytes indicating direction of motor
 static const byte MOTOR_FORWARD = 70;
 static const byte MOTOR_RELEASE = 82;
 static const byte MOTOR_BACKWARD = 66;
@@ -145,9 +152,6 @@ boolean isTransmittingMessage = false;
 byte motorCommand[5];
 byte motorCmdIndex = 0;
 long previousMillis = 0; 
-
-byte pinToggleCommand[2];
-byte pinToggleCmdIndex = 0;
 
 typedef enum {NOTHING, MOTOR, MESSAGE, TOGGLE, PINPWM} state;
 state currentState;
@@ -180,12 +184,6 @@ void loop() {
   eyeAcc += eyeTimer - eyeLastTimer;
   eyeLastTimer = eyeTimer;
   
-/*  while (mouthAcc >= 800)
-  {
-    animateMouth();
-   mouthAcc = 0; 
-  }
-  */
   while (eyeAcc >= 70)
   {
     animateEyes();
@@ -204,8 +202,7 @@ void loop() {
     {
          noTone(5);
          mouthSerial.println(mouth);
-         //mouthSerial.println("done");
-        isTransmittingMessage = false;
+         isTransmittingMessage = false;
     }
   }
 }
@@ -230,18 +227,22 @@ void animateEyes() {
   // Add a pupil (2x2 black square) atop the blinky eyeball bitmap.
   // Periodically, the pupil moves to a new position...
   
-  if(--gazeCountdown <= gazeFrames) {
+  if(--gazeCountdown <= gazeFrames)
+  {
     // Eyes are in motion - draw pupil at interim position
     eyematrix.fillRect(
       newX - (dX * gazeCountdown / gazeFrames),
       newY - (dY * gazeCountdown / gazeFrames),
       2, 2, LED_OFF);
-    if(gazeCountdown == 0) {    // Last frame?
+    if(gazeCountdown == 0)
+    {    // Last frame?
       eyeX = newX; eyeY = newY; // Yes.  What's new is old, then...
-      do { // Pick random positions until one is within the eye circle
+      do
+      { // Pick random positions until one is within the eye circle
         newX = random(7); newY = random(7);
         dX   = newX - 3;  dY   = newY - 3;
       } while((dX * dX + dY * dY) >= 10);      // Thank you Pythagoras
+      
       dX            = newX - eyeX;             // Horizontal distance to move
       dY            = newY - eyeY;             // Vertical distance to move
       gazeFrames    = random(3, 15);           // Duration of eye movement
@@ -263,77 +264,79 @@ void flushSerial()
   }
   
 void handleSerialInput()
-{
-    if (Serial.available() > 0)
   {
-    timeSinceLastCmd = millis();
-    incomingByte = Serial.read();
-    
-    if (incomingByte == MOTOR_COMMAND_DELIMITER && currentState == NOTHING)
+    if (Serial.available() > 0)
     {
-     currentState = MOTOR;
-     return;
-    }
-    
-    else if (incomingByte == MESSAGE_DELIMITER && currentState == NOTHING)
-    {
-     currentState = MESSAGE;
-     return;
-    }
-    
-    else if (incomingByte == PIN_TOGGLE_DELIMITER && currentState == NOTHING)
-    {
-     currentState = TOGGLE;
-     return;
-    }
-    
-    else if (incomingByte == PIN_PWM_DELIMITER && currentState == NOTHING)
-    {
-     currentState = PINPWM;
-     return; 
-    }
-    
-    if (currentState == MOTOR)
-     {
-       handleRobotMovement(incomingByte);
-     }
+      timeSinceLastCmd = millis();
+      incomingByte = Serial.read();
       
-     else if (currentState == MESSAGE)
-     {
-       handleRobotIncomingMessage(incomingByte);
-     }
-     
-     else if (currentState == TOGGLE)
-     {
-       delay(25);
-       
-       byte secondByte = Serial.read();
-       
-       changePinToggleState(incomingByte, secondByte);
-     }
+      if (incomingByte == MOTOR_COMMAND_DELIMITER && currentState == NOTHING)
+      {
+       currentState = MOTOR;
+       return;
+      }
       
-     else if (currentState == PINPWM)
-     {
-      delay(25);
-      // multiply by two since Java bytes are from -127 to 127 and we want the value from 0 to 255.
-      byte secondByte = Serial.read() * 2;
+      else if (incomingByte == MESSAGE_DELIMITER && currentState == NOTHING)
+      {
+       currentState = MESSAGE;
+       return;
+      }
+      
+      else if (incomingByte == PIN_TOGGLE_DELIMITER && currentState == NOTHING)
+      {
+       currentState = TOGGLE;
+       return;
+      }
+      
+      else if (incomingByte == PIN_PWM_DELIMITER && currentState == NOTHING)
+      {
+       currentState = PINPWM;
+       return; 
+      }
+      
+      if (currentState == MOTOR)
+       {
+         handleRobotMovement(incomingByte);
+       }
+        
+       else if (currentState == MESSAGE)
+       {
+         handleRobotIncomingMessage(incomingByte);
+       }
        
-      changePinPWMState(incomingByte, secondByte);
-     }
-    }
-    
-    
-    else
-    {
-     if (currentCmdTime - timeSinceLastCmd > 10000)
-     {
-       currentState = NOTHING;
-       runMotor(0, MOTOR_RELEASE, leftMotor);
-       runMotor(0, MOTOR_RELEASE, rightMotor);
-
-     } 
-    }
-}
+       else if (currentState == TOGGLE)
+       {
+         delay(25);
+         
+         byte secondByte = Serial.read();
+         
+         changePinToggleState(incomingByte, secondByte);
+       }
+        
+       else if (currentState == PINPWM)
+       {
+        delay(25);
+        // multiply by two since Java bytes are from -127 to 127 and we want the value from 0 to 255.
+        byte secondByte = Serial.read() * 2;
+         
+         // since the maximum value of 127 * 2 is 254, this way we can handle full voltage pwm
+         if (secondByte == 254)
+           secondByte = 255;
+           
+        changePinPWMState(incomingByte, secondByte);
+       }
+      }
+      
+      else
+      {
+       if (currentCmdTime - timeSinceLastCmd > 10000)
+       {
+         currentState = NOTHING;
+         runMotor(0, MOTOR_RELEASE, leftMotor);
+         runMotor(0, MOTOR_RELEASE, rightMotor);
+       } 
+      }
+  }
 
 void handleRobotMovement(byte incomingByte)
   {
@@ -373,7 +376,9 @@ void handleRobotIncomingMessage(byte incomingByte)
       robotMessageIndex++;
       
     }
-    else {
+    else 
+    {
+      // null-terminated string
       robotMessage[robotMessageIndex + 1] = '\0';
       String messageAsString(robotMessage);
       mouthSerial.println("$$$ALL,OFF");
@@ -383,6 +388,7 @@ void handleRobotIncomingMessage(byte incomingByte)
       isTransmittingMessage = true;
       currentState = NOTHING;
       robotMessageIndex = 0;
+      // most efficient way to reallocate a char array to null.
       memset(&robotMessage[0], 0, sizeof(robotMessage));
     }
   }
@@ -428,51 +434,33 @@ void moveServo(byte servoDirection)
     bottomPos = bottomPos - 10; 
   }  
   
-  
-    else if (servoDirection == SERVO_DOWN_RIGHT && bottomPos  >= 20 && topPos < 150)
+  else if (servoDirection == SERVO_DOWN_RIGHT && bottomPos  >= 20 && topPos < 150)
   {
     topPos = topPos + 10; 
     bottomPos = bottomPos - 10; 
   }  
   
-    else if (servoDirection == SERVO_DOWN_LEFT && bottomPos < 160 && topPos < 150)
+  else if (servoDirection == SERVO_DOWN_LEFT && bottomPos < 160 && topPos < 150)
   {
        topPos = topPos + 10; 
        bottomPos = bottomPos + 10; 
   }  
   
-    else if (servoDirection == SERVO_UP_RIGHT && topPos >= 110 && bottomPos  >= 20)
+  else if (servoDirection == SERVO_UP_RIGHT && topPos >= 110 && bottomPos  >= 20)
   {
     bottomPos = bottomPos - 10;
     topPos = topPos - 10; 
   }  
   
-    else if (servoDirection == SERVO_UP_LEFT && topPos >= 110 && bottomPos < 160)
+  else if (servoDirection == SERVO_UP_LEFT && topPos >= 110 && bottomPos < 160)
   {
     bottomPos = bottomPos + 10; 
     topPos = topPos - 10; 
   }  
   
   bottomServo.write(bottomPos);
-  topServo.write(topPos);  // 
-  
+  topServo.write(topPos);
   }
-  /*
-  void handlePinToggle(byte incomingByte)
-  {
-   if (pinToggleCmdIndex <= 1)
-   {
-     pinToggleCommand[pinToggleCmdIndex] = incomingByte;
-     pinToggleCmdIndex++;
-   }
-    
-   else if (pinToggleCmdIndex >= 2 && currentState == TOGGLE)
-   {
-    changePinToggleState(pinToggleCommand[0], pinToggleCommand[1]);
-    pinToggleCmdIndex = 0;
-    currentState = NOTHING;
-   }
-  }*/
   
   void changePinToggleState(byte pin_num, byte isOn)
   { 

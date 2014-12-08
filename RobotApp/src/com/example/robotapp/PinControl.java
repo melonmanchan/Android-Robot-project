@@ -20,7 +20,7 @@ public class PinControl extends ActionBarActivity {
 	private byte[] pwmCommand;
 	
 	private ApplicationState appState;
-	private BluetoothStreamManager btStream;
+	private BluetoothStreamManager btStreamManager;
 	
 	private SeekBar Pin11SeekBar;
 	private SeekBar Pin6SeekBar;
@@ -38,8 +38,8 @@ public class PinControl extends ActionBarActivity {
 		pwmCommand[0] = PIN_PWM_DELIMITER;
 		
 		appState = (ApplicationState)this.getApplication();
-		btStream = appState.getStateManager();
-		btStream.setCurrentActivity(this);
+		btStreamManager = appState.getStateManager();
+		btStreamManager.setCurrentActivity(this);
 
 		Pin11SeekBar = (SeekBar) findViewById(R.id.pin11SeekBar);
 		Pin6SeekBar = (SeekBar) findViewById(R.id.pin6SeekBar);
@@ -133,11 +133,7 @@ public class PinControl extends ActionBarActivity {
 			break;
 		}
 		
-		for (int i = 0; i < toggleCommand.length; i++)
-		{
-			System.out.println("byte: " + i + " " + toggleCommand);
-		}
-		btStream.push(toggleCommand);
+		btStreamManager.push(toggleCommand);
 	}
 		
 	private class PWMToggleListener implements SeekBar.OnSeekBarChangeListener 
@@ -157,10 +153,8 @@ public class PinControl extends ActionBarActivity {
 				break;
 			}
 			pwmCommand[2] = (byte) progress;
-			
-			System.out.println(pwmCommand[0] + " " + pwmCommand[1] + " " + pwmCommand[2]);
-			
-			btStream.push(pwmCommand);
+						
+			btStreamManager.push(pwmCommand);
 
 		}
 
@@ -190,7 +184,7 @@ public class PinControl extends ActionBarActivity {
 			
 			System.out.println(pwmCommand[0] + " " + pwmCommand[1] + " " + pwmCommand[2]);
 			
-			btStream.push(pwmCommand);*/
+			btStreamManager.push(pwmCommand);*/
 		}
 		
 	}

@@ -24,6 +24,7 @@ import android.util.Log;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import com.example.robotapp.R;
 
 public class MjpegInputStream extends DataInputStream {
     private final byte[] SOI_MARKER = { (byte) 0xFF, (byte) 0xD8 };

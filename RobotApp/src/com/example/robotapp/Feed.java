@@ -6,15 +6,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.Socket;
 import java.net.UnknownHostException;
-
 import android.support.v7.app.ActionBarActivity;
 import android.app.AlertDialog;
-import android.bluetooth.*;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -54,22 +49,26 @@ public class Feed extends ActionBarActivity {
 	// Byte indicating the speed the motor should run, on axis up, down, left and right.
 	private byte axisForce;
 	
+	// Byte array to store all necessary value sin
 	private byte[] motorCommand;
 	
+	// Handlers and runnable responsible for sending data to the Arduino
 	private Handler movementHandler;
 	private Runnable movementRunnable;
 	
+	// Options, received from Settings activity
 	private int movementUpdateSpeed;
 	private String videoIpAddress = "192.168.0.5";
 	private String videoPort = "5000";
+	private boolean isCameraEnabled = true;
 	
-	
+	// Two joysticks to control movement
 	private JoystickView leftJoystick;
 	private JoystickView rightJoystick;
 	private MjpegView videoFeed = null;
 	
 	private ApplicationState appState;
-	private BluetoothStreamManager btStream;
+	private BluetoothStreamManager btStreamManager;
 		
 	 // F = 70
 	 // S = 83
@@ -89,13 +88,14 @@ public class Feed extends ActionBarActivity {
 				movementUpdateSpeed = extras.getInt("BT_UPDATE_SPEED");
 				videoIpAddress = extras.getString("CAMERA_IP_ADDRESS");
 				videoPort = extras.getString("CAMERA_PORT");
-				
+				isCameraEnabled = extras.getBoolean("IS_CAMERA_ENABLED");
+
 			}
 		}
 		System.out.println(videoIpAddress +videoPort );
 		appState = (ApplicationState)this.getApplication();
-		btStream = appState.getStateManager();
-		btStream.setCurrentActivity(this);
+		btStreamManager = appState.getStateManager();
+		btStreamManager.setCurrentActivity(this);
 		leftJoystick = (JoystickView) findViewById(R.id.leftJoystick);
 		rightJoystick = (JoystickView) findViewById(R.id.rightJoystick);
 		
@@ -113,8 +113,11 @@ public class Feed extends ActionBarActivity {
 		initiateMovementHandlers();
 		initiateJoystickListeners();
 		
-		videoFeed = (MjpegView) findViewById(R.id.videoFeed);
-		fetchVideoFeed();
+		if (isCameraEnabled == true)
+		{
+			videoFeed = (MjpegView) findViewById(R.id.videoFeed);
+			fetchVideoFeed();
+		}
 
 	}
 
@@ -122,7 +125,7 @@ public class Feed extends ActionBarActivity {
 	protected void onResume(){
 		super.onResume();
 		System.out.println("changed activity");
-		btStream.setCurrentActivity(this);
+		btStreamManager.setCurrentActivity(this);
 		movementHandler.postDelayed(movementRunnable, movementUpdateSpeed);
 		if (videoFeed != null)
 		{
@@ -160,10 +163,13 @@ public class Feed extends ActionBarActivity {
 		movementHandler = new Handler();
 		movementRunnable = new Runnable() {
 			public void run() {
+				// don't send motor command while message command is still transmitting
 				if (!isTransmittingMessage)
 				{
+					// motorCommand to temp variable so it doesn't change while the function is not yet finished
 					byte[] temp = motorCommand;
 					
+		
 					if (servoStateChanged == false)
 					{
 						temp[5] = SERVO_NOTHING;
@@ -177,7 +183,7 @@ public class Feed extends ActionBarActivity {
 						temp[4] = 0;// no motor movement
 					}
 					
-					btStream.push(temp);
+					btStreamManager.push(temp);
 					
 					servoStateChanged = false;
 					motorStateChanged = false;
@@ -225,11 +231,12 @@ public class Feed extends ActionBarActivity {
             	
             	if (direction == JoystickView.FRONT || direction == JoystickView.BOTTOM || direction == JoystickView.LEFT || direction == JoystickView.BOTTOM)
             	{
-            		// axisforce is calculated as a sliding value of -127 to 128.
+            		// axisforce is calculated as a sliding value of 0 to 127
             		axisForce = (byte) (byte)(127 * power/100);
             	}
             	
                 switch (direction) {
+                
                 
                 case JoystickView.FRONT:
                 	                	                	
@@ -251,7 +258,7 @@ public class Feed extends ActionBarActivity {
                 case JoystickView.RIGHT:
                 //	System.out.println("M: right");
 
-                	
+                	// multiply axisforce by 0.7, since otherwise the robot spins impossibly fast!
                 	motorCommand[1] = MOTOR_FORWARD;
                 	motorCommand[2] = (byte) (axisForce * 0.7);
                 	motorCommand[3] = MOTOR_BACKWARD;
@@ -307,10 +314,11 @@ public class Feed extends ActionBarActivity {
                 	motorCommand[2] = 0;
                 	motorCommand[3] = MOTOR_RELEASE;
                 	motorCommand[4] = 0;
-                	
                 }
+        
+
             }
-        }, JoystickView.DEFAULT_LOOP_INTERVAL); 
+        }, movementUpdateSpeed / 2 ); 
 	
 		
 		rightJoystick.setOnJoystickMoveListener(new JoystickView.OnJoystickMoveListener() {
@@ -323,62 +331,45 @@ public class Feed extends ActionBarActivity {
             	
                 switch (direction) {
                 case JoystickView.FRONT:
-                	//System.out.println("S: front");
-
                 	 motorCommand[5] = SERVO_UP;
                     break;
+                    
                 case JoystickView.FRONT_RIGHT:
-                	//System.out.println("S: front-right");
-
                 	 motorCommand[5] = SERVO_UP_RIGHT;
                     break;
+                    
                 case JoystickView.RIGHT:
-                	//System.out.println("S: right");
-
                 	 motorCommand[5] = SERVO_RIGHT;
                     break;
+                    
                 case JoystickView.RIGHT_BOTTOM:
-                	//System.out.println("S: right_bottom");
-
                 	 motorCommand[5] = SERVO_DOWN_RIGHT;
                     break;
+                    
                 case JoystickView.BOTTOM:
-                	//System.out.println("S: bottom");
-
                 	 motorCommand[5] = SERVO_DOWN;
                     break;
+                    
                 case JoystickView.BOTTOM_LEFT:
-                	//System.out.println("S: bottom_left");
-
                 	 motorCommand[5] = SERVO_DOWN_LEFT;
                     break;
+                    
                 case JoystickView.LEFT:
-                	//System.out.println("S: left");
-
                 	 motorCommand[5] = SERVO_LEFT;
                     break;
+                    
                 case JoystickView.LEFT_FRONT:
-                	//System.out.println("S: left-front");
-
                 	 motorCommand[5] = SERVO_UP_LEFT;
                     break;
+                    
                 default:
                 	 motorCommand[5] = SERVO_NOTHING;
                 }
             }
-        }, JoystickView.DEFAULT_LOOP_INTERVAL); 
+        }, movementUpdateSpeed / 2); 
 		
 	}
 
-	public void resetMotorCommandState()
-	{
-		motorCommand[1] = 0; // second byte indicates the speed of the left motor. -128 is 0 speed.
-		motorCommand[2] = MOTOR_RELEASE; // no motor movement
-		motorCommand[3] = 0;
-		motorCommand[4] = MOTOR_RELEASE;// no motor movement
-	    motorCommand[5] = SERVO_NOTHING; // no servo movement
-	}
-	
 	@Override
 	public boolean onKeyDown(int keycode, KeyEvent e) {
 	    switch(keycode) {
@@ -401,14 +392,15 @@ public class Feed extends ActionBarActivity {
 		
 		final EditText messageEditText = new EditText(this);
 		
+		// Build a dialog box to get user input
 		new AlertDialog.Builder(this)
 	    .setTitle("Message")
-	    .setMessage("Make the robot talk!!!")
+	    .setMessage("Make the robot talk!")
 	    .setView(messageEditText)
 	    .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 	        public void onClick(DialogInterface dialog, int whichButton) {
 	            String value = messageEditText.getText().toString();
-	            // regex magic to check for ASCII compliantness.
+	            // regex magic to check for ASCII compliance.
 	            if (!value.matches("\\p{ASCII}+"))
 	            {
 	            	Toast.makeText(getApplicationContext(), "ASCII only please!", Toast.LENGTH_LONG).show();
@@ -430,17 +422,17 @@ public class Feed extends ActionBarActivity {
 	private void sendMessageToRobot(String message)
 	{
 		isTransmittingMessage = true;
-		// "z" is the ascii equivelant of 123, which is the message startiung delimiter. "\n" is the ending delimiter.
+		// "z" is the ascii equivelant of 123, which is the message starting delimiter. "\n" is the ending delimiter.
 		message.replace('\n', ' ');
 		message = "z" + message + "\n";
 		try {
 			byte[] messageBytes = message.getBytes("US-ASCII");
-			btStream.push(messageBytes);
-			Thread.sleep(100);
+			btStreamManager.push(messageBytes);
+			Thread.sleep(message.length() * 150);
 			isTransmittingMessage = false;
 		} catch (UnsupportedEncodingException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Toast.makeText(getApplicationContext(), "Ascii only, please!", Toast.LENGTH_SHORT).show();
 		}
 		catch (InterruptedException e) {
 			
@@ -448,20 +440,13 @@ public class Feed extends ActionBarActivity {
 				
 	}
 	
-	public void refreshFeed(View view)
-	{
-		
-		videoFeed = null;
-		videoFeed = (MjpegView) findViewById(R.id.videoFeed);
-		fetchVideoFeed();
-		
-	}
-	
+
 	
 	public void fetchVideoFeed()
 	{
 		new DoRead().execute( videoIpAddress, videoPort);
 	}
+	
 	
     public class DoRead extends AsyncTask<String, Void, MjpegInputStream> {
     	protected MjpegInputStream doInBackground( String... params){
@@ -471,10 +456,10 @@ public class Feed extends ActionBarActivity {
 	    		return (new MjpegInputStream(socket.getInputStream()));
 			} catch (UnknownHostException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println(e.getMessage());
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				System.out.println(e.getMessage());
 			}
     		return null;
     	}
@@ -483,11 +468,11 @@ public class Feed extends ActionBarActivity {
         	videoFeed.setSource(result);
            if(result!=null)
            {
+        	   // skip every other frame, for better speed and less lag
             	result.setSkip(2);
-            	
            }
-            videoFeed.setDisplayMode(MjpegView.SIZE_BEST_FIT);
-            videoFeed.showFps(true);
+           videoFeed.setDisplayMode(MjpegView.SIZE_BEST_FIT);
+           videoFeed.showFps(true);
         }
     }
 	

@@ -1,7 +1,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     tools:context="com.example.robotapp.Feed" >
     
         <com.camera.simplemjpeg.MjpegView
@@ -16,22 +16,14 @@
         android:layout_height="150dp"
         android:layout_gravity="right|bottom"
         />
+    
     <com.example.robotapp.JoystickView
         android:id="@+id/leftJoystick"
         android:layout_width="150dp"
         android:layout_height="150dp"
-        android:layout_gravity="left|bottom"
-       
+        android:layout_gravity="left|bottom"  
        	 />
 
-        <Button
-        android:id="@+id/testButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Refresh"
-        android:layout_gravity="top|right"
-        android:layout_marginRight="30dp"
-        android:onClick="refreshFeed" />
     
     <Button
         android:id="@+id/messageButton"
@@ -39,8 +31,8 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="44dp"
         android:onClick="openMessagePrompt"
-        android:text="Message"
+        android:text="@string/message_btn"
         android:layout_gravity="center_horizontal|bottom"
-        android:layout_marginRight="30dp" />"
+        android:layout_marginRight="30dp" />
 
 </FrameLayout>

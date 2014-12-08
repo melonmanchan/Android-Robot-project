@@ -1,14 +1,5 @@
 package com.example.robotapp;
-import java.util.ArrayList;
-import java.util.Set;
-
-import android.app.Activity;
 import android.app.Application;
-import android.bluetooth.*;
-import android.content.Intent;
-import android.os.Bundle;
-import android.widget.Toast;
-
 
 // Must extend application class to handle passing complex stream objects between activities. Serializabe/Parcelable not an option.
 public class ApplicationState extends Application {
@@ -24,12 +15,6 @@ public class ApplicationState extends Application {
         super.onCreate();
         stateManager = new BluetoothStreamManager();
         stateManager.workThread.start();
-        byte[] data;
-        data = new byte[3];
-        data[0] = 127;
-        data[1] = -128;
-        data[2] = 0;
-		stateManager.push(data);
     }
 
 	
