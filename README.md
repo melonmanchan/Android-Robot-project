@@ -6,4 +6,4 @@ Robot project for Android programming course. It's a Bluetooth-controlled robot 
 
 ![alt text](http://i.imgur.com/Y7h5XNU.png "Robot")
 
-If you'd like to know more about it,[¨here's the project documentation](http://student.labranet.jamk.fi/~G8049/doc.pdf)
+If you'd like to know more about it,[here's the project documentation](http://student.labranet.jamk.fi/~G8049/doc.pdf)
